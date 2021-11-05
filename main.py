@@ -95,7 +95,7 @@ class MyClient(commands.Bot):
         #emote = class(emote)
         #print(emojireacts[trigs])
         if not message.channel.id in [876586125987295283, 876586168953737246]:
-          #await message.add_reaction(emote)
+          await message.add_reaction(emote)
           i = 0
 
     if msg.startswith(';'):
@@ -112,7 +112,7 @@ class MyClient(commands.Bot):
       guild = self.get_guild(reaction.guild_id)
       channel = self.get_channel(670362292659159040)
       print('Verified user')
-      #await channel.send(f'Welcome, <@{reaction.user_id}> as the {guild.member_count}th user!')
+      await channel.send(f'Welcome, <@{reaction.user_id}> as the {guild.member_count}th user!')
   
   async def on_member_join(self, member):
     if member.guild.id == 468176956232302603:
@@ -195,8 +195,7 @@ for filename in os.listdir('Cogs'):
         client.load_extension('Cogs.'+filename[:-3])
 
 try:
-  client.run('ODU0ODk5NDc0OTU0NDUzMDAz.YMqpLg.k1NOmb4VHoqE2d84G3OqiJ2NzZU')
-  #client.run(os.getenv("DISCORD_TOKEN"))
+  client.run(os.getenv("DISCORD_TOKEN"))
 except Exception:
   exep = sys.exc_info()
   expv = exep[1]
