@@ -5,7 +5,7 @@ from discord.ext import commands
 from discord import Embed, Color
 import sqlite3
 
-con = sqlite3.connect('data1.db')
+con = sqlite3.connect('/rool/data/data1.db')
 cur = con.cursor()
 cur.execute("CREATE TABLE IF NOT EXISTS suggestions2 (id INTEGER PRIMARY KEY AUTOINCREMENT, msgid INTEGER, userid INTEGER, content TEXT, edited INTEGER DEFAULT 0, response TEXT DEFAULT 'None')")
 #add a suggestion to the database
@@ -48,19 +48,20 @@ class Suggestion(commands.Cog):
         await ctx.reply("Suggestion added in <#670362431373180948>.", delete_after=10)
         await ctx.message.delete()
         print(f'Added suggestion from {ctx.author.name}#{ctx.author.discriminator}')
+        
     #approve command
     @commands.command(help='Approve a suggestion')
     @commands.check(has_any_role(470547452873932806, 670427731468746783, 7103405656522097650))
     async def approve(self, ctx, sid, *, reply):
       await ctx.message.delete()
-      #try:
-      print(sid)
-      sid = int(sid)
-      for row in cur.execute(f'SELECT * FROM suggestions2 WHERE id = {sid}'):
-        suggestionfetched = row
-      #except Exception:
-        #await ctx.send("Please enter a valid suggestion value", delete_after=5)
-        #return
+      try:
+        print(sid)
+        sid = int(sid)
+        for row in cur.execute(f'SELECT * FROM suggestions2 WHERE id = {sid}'):
+            suggestionfetched = row
+      except Exception:
+        await ctx.send("Please enter a valid suggestion value", delete_after=5)
+        return
       print(suggestionfetched)
       sgsmsgid = suggestionfetched[1]
       sgscontent = suggestionfetched[3]
@@ -72,19 +73,20 @@ class Suggestion(commands.Cog):
       embed4.set_author(name=f'{usr.name}#{usr.discriminator}', icon_url=usr.display_avatar)
       embed4.add_field(name=f'Approved by {ctx.author.name}#{ctx.author.discriminator}', value=reply)
       await msg3.edit(embed=embed4)
+        
     #deny command
     @commands.command(help='Deny a suggestion')
     @commands.check(has_any_role(470547452873932806, 670427731468746783, 7103405656522097650))
     async def deny(self, ctx, sid, *, reply):
       await ctx.message.delete()
-      #try:
-      print(sid)
-      sid = int(sid)
-      for row in cur.execute(f'SELECT * FROM suggestions2 WHERE id = {sid}'):
-        suggestionfetched = row
-      #except Exception:
-        #await ctx.send("Please enter a valid suggestion value", delete_after=5)
-        #return
+      try:
+        print(sid)
+        sid = int(sid)
+        for row in cur.execute(f'SELECT * FROM suggestions2 WHERE id = {sid}'):
+            suggestionfetched = row
+      except Exception:
+        await ctx.send("Please enter a valid suggestion value", delete_after=5)
+        return
       print(suggestionfetched)
       sgsmsgid = suggestionfetched[1]
       sgscontent = suggestionfetched[3]
