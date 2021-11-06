@@ -1,7 +1,5 @@
 import discord, os, sys, json, random, logging, time, datetime
-#from keep_alive import keep_alive
 from discord.ext import commands
-#from replit import db
 from discord import Embed, Color, ui
 import sqlite3
 
@@ -9,9 +7,6 @@ from discord.member import VoiceState
 
 con = sqlite3.connect('data1.db')
 cur = con.cursor()
-
-#print(db['newreacts'])
-#emojireacts = db['newreacts']
 
 #define stuff
 def prcscmd(cmds):
