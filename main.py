@@ -110,16 +110,9 @@ class MyClient(commands.Bot):
       await channel.send(f'Welcome, <@{reaction.user_id}> as the {guild.member_count}th user!')
   
   async def on_member_join(self, member):
-    if member.guild.id == 468176956232302603:
-      #print(len(member.roles))
-      #memberid = member.id
-      #time.sleep(5)
-      #guild1 = self.get_guild(468176956232302603)
-      #member = await guild1.fetch_member(memberid)
-      #print(len(member.roles))
-      if len(member.roles) == 1:
-        cha1 = self.get_channel(901726179818614824)
-        await cha1.send(content=f'*Welcome, <@{member.id}>!* \n `Read above and press Verify!`', delete_after=15)
+    if member.guild.id == 468176956232302603 and len(member.roles) == 1:
+      cha1 = self.get_channel(901726179818614824)
+      await cha1.send(content=f'*Welcome, <@{member.id}>!* \n `Read above and press Verify!`', delete_after=15)
 
 
 client = MyClient(command_prefix='>',intents = discord.Intents.all())
