@@ -5,7 +5,7 @@ import sqlite3
 
 from discord.member import VoiceState
 
-con = sqlite3.connect('data1.db')
+con = sqlite3.connect('/root/data/data1.db')
 cur = con.cursor()
 
 #define stuff
