@@ -1,6 +1,5 @@
 import discord, os, sys, json, random, logging, requests, datetime
 from discord.ext import commands
-#from replit import db
 from discord import Embed, Color
 
 def get_quote():
