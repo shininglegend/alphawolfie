@@ -5,7 +5,7 @@ from discord.ext import commands
 from discord import Embed, Color
 import sqlite3
 
-con = sqlite3.connect('/rool/data/data1.db')
+con = sqlite3.connect('/root/data/data1.db')
 cur = con.cursor()
 cur.execute("CREATE TABLE IF NOT EXISTS suggestions2 (id INTEGER PRIMARY KEY AUTOINCREMENT, msgid INTEGER, userid INTEGER, content TEXT, edited INTEGER DEFAULT 0, response TEXT DEFAULT 'None')")
 #add a suggestion to the database
