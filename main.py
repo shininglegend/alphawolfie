@@ -115,7 +115,7 @@ class MyClient(commands.Bot):
       await cha1.send(content=f'*Welcome, <@{member.id}>!* \n `Read above and press Verify!`', delete_after=15)
 
 
-client = MyClient(command_prefix='>',intents = discord.Intents.all())
+client = MyClient(command_prefix=';',intents = discord.Intents.all())
 
 
 #commands
