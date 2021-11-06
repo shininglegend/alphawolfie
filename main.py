@@ -188,4 +188,4 @@ except Exception:
   exep = sys.exc_info()
   expv = exep[1]
   print('Failed to start:\n%s'%(str(expv))) 
-#if this is visable it was successful = true
+#if this is visable it was successful... I think?
