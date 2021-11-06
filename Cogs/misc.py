@@ -40,7 +40,7 @@ class Misc(commands.Cog):
             check = True
         if check != True and message.attachments == []:
           await message.author.send(f'Your message in <#{message.channel.id}> was deleted because it did not have an attachment. \nHere\'s the message for referance: {message.content}')
-          await self.log0101(message=f'<@{message.author.id}> in <#{message.channel.id}> : {message.content}', title=f'Deleted message')
+          await self.log0101(message=f'<@{message.author.id}> in <#{message.channel.id}> : {message.content}', title=f'Deleted message due to no attachment:')
           await message.delete()
           #print('Deleted message')
 
