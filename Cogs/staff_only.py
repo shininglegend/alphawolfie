@@ -4,7 +4,7 @@ from discord.ext import commands
 from discord import Embed, Color, ui
 import sqlite3
 
-con = sqlite3.connect('data.db')
+con = sqlite3.connect('/root/data/data1.db')
 cur = con.cursor()
 
 
