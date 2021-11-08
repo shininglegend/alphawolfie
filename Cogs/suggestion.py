@@ -75,8 +75,10 @@ class Suggestion(commands.Cog):
     async def suggest(self, ctx, *, suggestion):
         #add it to the database and return id
         #suggestion_add(809948529941413929, 904948087154438185, "CTF rankings")
+        
         for row in cur.execute('SELECT MAX(id) FROM suggestions2'):
             suggestionid = row[0]
+        suggestionid = 2222
         suggestionid = int(suggestionid) + 1
         #post the suggestion
         embed2 = discord.Embed(color=Color.dark_magenta(), title=f"Suggestion #{suggestionid}", description=suggestion)
