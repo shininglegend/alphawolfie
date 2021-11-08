@@ -33,15 +33,19 @@ class Suggestion(commands.Cog):
     
     async def suggestion_update(self, ctx, sid, reply, status):
       await ctx.message.delete()
+      suggestionfetched = None
       try:
         print(sid)
         sid = int(sid)
         for row in cur.execute(f'SELECT * FROM suggestions2 WHERE id = {sid}'):
           suggestionfetched = row
       except Exception:
-        await ctx.send("Please enter a valid suggestion value", delete_after=5)
+        await ctx.send("Please enter a valid suggestion value.", delete_after=5)
         return
       print(suggestionfetched)
+      if suggestionfetched==None:
+        await ctx.send("I could not find that suggestion.", delete_after=5)
+        return
       sgsmsgid = suggestionfetched[1]
       sgscontent = suggestionfetched[3]
       usr = ctx.guild.get_member(suggestionfetched[2])
