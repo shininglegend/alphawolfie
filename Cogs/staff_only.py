@@ -2,23 +2,33 @@ import discord, os, sys, json, random, logging, requests
 from discord.ext import commands
 #from replit import db
 from discord import Embed, Color, ui
-import sqlite3
+#import sqlite3
+import psycopg2 as pgsql
 
-con = sqlite3.connect('/root/data/data1.db')
-cur = con.cursor()
-
-
-#db['StaffAlert'] = 3
-#db['newreacts'] = {'wolfie': '<:wolfygun:755447204654874696>', 'wingy': '<:wingyafterashower:771542730916364338>', 'ereg': '<:ninjathonk:827739388058140713>', 'wolfy': '<:wolfyrpg:844992590361526272>', 'wofy': '<:wolfyrpg:844992590361526272>', 'marsh': '<:marshyhappy:826259233309196348>', 'dasani': '<:sunglase:834052568271159297>', 'delta': '<:whot:792770838113026058>', 'pog': '<:pog:706201125275303950>', 'andokrin': '<:Kannasip:762753253016338512>', 'jeff': '<:blink:767221910374318150>', 'abuse': '<:catstare:850751387889434624>', 'sensei': '<:thumbsup:851910615168974878>', 'morgy': '<:thumbsup:851910615168974878>', 'bear': '<a:SaucyBear:762798329250709534>', 'demon': '<:YOURFEET:853123667314999317>', 'sparkle': '<:SPARKELS:853036933684658176>', 'mercury': '<:Mercury:881922010123468831>'}
+conn = pgsql.connect("dbname=alphawolfie user=postgres password=password")
+curr = conn.cursor()
+#con = sqlite3.connect('data1.db')
+#con = sqlite3.connect('/root/data/data1.db')
+#cur = con.cursor()
 
 def is_it_me(ctx):
     return ctx.message.author.id == 585991293377839114
 
+def get_ar():
+  l = {}
+  curr.execute('SELECT * FROM reactions ORDER BY trigger')
+  for row in curr:
+    l[row[1]] = row[2]
+  return l
 
+def remove_ar(trigger):
+  curr.execute('DELETE FROM reactions WHERE trigger = %s', (trigger,))
+  conn.commit()
 
 class StaffOnly(commands.Cog):
     def __init__(self, bot):
       self.bot = bot
+      self.description = 'Staff only! Epic commands to improve your experiance!'
 
     #events
     @commands.Cog.listener()
@@ -54,7 +64,7 @@ class StaffOnly(commands.Cog):
 
 
     @commands.command(help='Add an emojireaction, Dev only')
-    @commands.check(is_it_me)
+    @commands.has_role(470547452873932806)
     async def ar_add(self, ctx, iemoji, trigger):      
       emoji=iemoji
       print(f'{emoji}:{trigger}')
@@ -62,40 +72,31 @@ class StaffOnly(commands.Cog):
       #dab[str(trigger)] = str(emoji)
       #print(dab)
       #db['newreacts'] = dab
-      cur.execute('INSERT INTO reactions(trigger, eid) VALUES (?, ?)', (str(trigger), str(emoji)))
-      con.commit()
+      curr.execute('INSERT INTO reactions(trigger, eid) VALUES (%s, %s)', (str(trigger), str(emoji)))
+      conn.commit()
       await ctx.send(f'{emoji} added for the trigger **{trigger}**')
 
-    '''@commands.command(help='Check the list of autoreactions! Dev only')
-    @commands.check(is_it_me)
+    @commands.command(help='Check the list of autoreactions! Dev only')
+    @commands.has_role(470547452873932806)
     async def ar_list(self, ctx):
-        dab = db["newreacts"]
+        dab = get_ar()
         m = ""
-
         for i in dab:
           m += f"{i} : {dab[i]}\n"
-        
         await ctx.send(m)
 
     @commands.command(help="Delete an autoreaction. Dev only")
-    @commands.check(is_it_me)
+    @commands.has_role(470547452873932806) 
     async def ar_del(self, ctx, trigger):
-        dab = db["newreacts"]
-        if trigger in dab:
-          del dab[trigger]
-          db["newreacts"] = dab
-          await ctx.send(f"{trigger} has been removed from database.")
-        else:
-          await ctx.send("Trigger not found.")
+        remove_ar(trigger)
+        await ctx.send(f'{trigger} has been removed.')
 
-
-        @ar_add.error
-        async def ar_add_error(self, ctx, error):
-        if isinstance(error, commands.BadArgument):
-          await ctx.send(f'Error: {error}')'''
+    @ar_del.error
+    async def ar_del_error(self, ctx, error):
+      await ctx.send(f'Error: {error}')
 
     @commands.command(help='Change my status! Dev only')
-    @commands.has_role(827016494998093834)
+    @commands.has_role(827016494998093834) #470547452873932806 is admin role
     async def status_change(self, ctx, *, msgd):
       streaming=discord.Game(name=msgd)
       await self.bot.change_presence(status=discord.Status.dnd, activity=streaming)
@@ -140,16 +141,21 @@ class StaffOnly(commands.Cog):
       #db["StaffAlert"] = alert
       await ctx.send(f"Done. Alert level is now {str(alert)}.")
     
-    '''@commands.command(help="export the repl data")
-    @commands.check(is_it_me)
-    async def export(self, ctx):
-      keys = db.keys()
-      for key in keys:
-        print(f"{key}:{db[key]}\n")
-        await ctx.send(f"{key}:{db[key]}")'''
+    @commands.command(help="Manually verify a member", aliases=['mv', 'verify'])
+    @commands.has_role(470547452873932806)
+    async def manualverify(self, ctx, nusr:discord.Member):
+      print("Manual verify triggered")
+      role1 = ctx.guild.get_role(702710000048668783)
+      await nusr.add_roles(role1)
+      print("added role")
+      channel = ctx.guild.get_channel(670362292659159040)
+      await channel.send(f'Welcome, <@{nusr.id}> as the {ctx.guild.member_count}th user!')
+      await nusr.send(content='You have been manually verified. Say hi in <#670362292659159040>!')
+      await ctx.reply(f'Done. <@{nusr.id}> has been manually verified.')
     
+    @manualverify.error
+    async def mv_error(self, ctx, error):
+      await ctx.send(f'Error: {error}', delete_after=15)
 
-      
-
-def setup(bot):
-  bot.add_cog(StaffOnly(bot))
+async def setup(bot):
+  await bot.add_cog(StaffOnly(bot))

@@ -1,5 +1,6 @@
 import discord, os, sys, json, random, logging, requests, datetime
 from discord.ext import commands
+#from replit import db
 from discord import Embed, Color
 
 def get_quote():
@@ -14,6 +15,7 @@ class Misc(commands.Cog):
 
     def __init__(self, bot):
       self.bot = bot
+      self.description = 'This is where all the extra commands go.'
 
     async def log0101(self, message, title=None):
       cha = await self.bot.fetch_channel(777042897630789633)
@@ -29,7 +31,7 @@ class Misc(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-      if message.channel.id == 835164179001901099:
+      if message.channel.id in [835164179001901099, 911020430368866314]:
         check = False
         for i in [470547452873932806, 670427731468746783]:
           role = message.guild.get_role(i)
@@ -40,9 +42,12 @@ class Misc(commands.Cog):
             check = True
         if check != True and message.attachments == []:
           await message.author.send(f'Your message in <#{message.channel.id}> was deleted because it did not have an attachment. \nHere\'s the message for referance: {message.content}')
-          await self.log0101(message=f'<@{message.author.id}> in <#{message.channel.id}> : {message.content}', title=f'Deleted message due to no attachment:')
+          await self.log0101(message=f'<@{message.author.id}> in <#{message.channel.id}> : {message.content}', title=f'Deleted message')
           await message.delete()
           #print('Deleted message')
+        if message.attachments != [] and message.channel.id == 911020430368866314:
+          await message.add_reaction("<:upvote:904548817783894026>")
+          await message.add_reaction("<:downvote:904548736884150292>")
 
 
 
@@ -53,11 +58,11 @@ class Misc(commands.Cog):
       if member.guild.id == 468176956232302603:
         if after.channel == None:
           await member.remove_roles(role1, reason='Left the VC.') 
-          await self.log0101(f'<@{member.id}> : {before.channel}>{after.channel}, removed  VC role')
+          #await self.log0101(f'<@{member.id}> : {before.channel}>{after.channel}, removed  VC role')
         else:
           if after.channel != None and before.channel == None:
             await member.add_roles(role1, reason='Joined the VC.')
-            await self.log0101(f'<@{member.id}> : {before.channel}>{after.channel}, added VC role')
+            #await self.log0101(f'<@{member.id}> : {before.channel}>{after.channel}, added VC role')
             
 
 
@@ -120,5 +125,5 @@ class Misc(commands.Cog):
         embed2 = Embed(color = Color.green(), description=message2)
         await ctx.send(embed=embed2)
 
-def setup(bot):
-  bot.add_cog(Misc(bot))
+async def setup(bot):
+  await bot.add_cog(Misc(bot))
