@@ -86,11 +86,6 @@ class Misc(commands.Cog):
       await ctx.send(f'Error: {error}', delete_after=15)
 
 
-    @commands.command(help='pingpong', aliases=['pong'])
-    async def ping(self, ctx):
-      await ctx.send(f':ping_pong:  {round(self.bot.latency *1000)}ms!')
-
-
     @commands.command(help='Ping Giveaways')
     @commands.cooldown(1, 60)
     async def gwping(self, ctx):

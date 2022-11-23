@@ -2,9 +2,10 @@ import discord, os, sys, json, random, logging, time, datetime, contextlib
 #from keep_alive import keep_alive
 from discord.ext import commands
 #from replit import db
-from discord import Embed, Color, ui
+from discord import Embed, Color, ui, app_commands
 #import sqlite3
-from discord.ext.commands.help import HelpCommand, Paginator
+from typing import Literal, Optional
+from discord.ext.commands import Greedy, Context
 from discord.member import VoiceState
 import psycopg2 as pgsql
 
@@ -13,9 +14,17 @@ curr = conn.cursor()
 #con = sqlite3.connect('/root/data/data1.db')
 #con = sqlite3.connect('data1.db')
 #cur = con.cursor()
-
+MY_GUILD = discord.Object(id=468176956232302603)
 #print(db['newreacts'])
 #emojireacts = db['newreacts']
+
+#0 = on my machine, 1 = on digital ocean
+location = 1
+
+if location == 0:
+  myprefix = '>'
+else:
+  myprefix = ';'
 
 #define stuff
 def randomtopic():
@@ -50,11 +59,15 @@ class MyClient(commands.Bot):
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
     self.persistent_views_added = False
+    #self.tree = app_commands.CommandTree(self)
   
   async def setup_hook(self):
     for filename in os.listdir('Cogs'):
       if filename.endswith('.py'):
         await self.load_extension('Cogs.'+filename[:-3])
+    self.tree.copy_global_to(guild=MY_GUILD)
+    await self.tree.sync(guild=MY_GUILD)
+    print("Loaded Cogs and Synced Slash Commands")
 
   async def logEvent(self, message, title=None):
     cha = self.client.get_channel(777042897630789633)
@@ -97,7 +110,7 @@ class MyClient(commands.Bot):
         #emote = class(emote)
         #print(emojireacts[trigs])
         if not message.channel.id in [876586125987295283, 876586168953737246]:
-          await message.add_reaction(emote) #disable
+          if location == 1: await message.add_reaction(emote) #disable
           i = 0
 
     if msg.startswith(';'):
@@ -108,8 +121,9 @@ class MyClient(commands.Bot):
       guild = self.get_guild(reaction.guild_id)
       channel = self.get_channel(670362292659159040)
       print('Verified user')
-      await channel.send(f'Welcome, <@{reaction.user_id}> as the {guild.member_count}th user!')
-      await channel.send(f'~{randomtopic()}') #disable
+      if location == 1:
+        await channel.send(f'Welcome, <@{reaction.user_id}> as the {guild.member_count}th user!')
+        await channel.send(f'~{randomtopic()}') #disable
   
   async def on_member_join(self, member):
     if member.guild.id == 468176956232302603:
@@ -121,9 +135,9 @@ class MyClient(commands.Bot):
       #print(len(member.roles))
       if len(member.roles) == 1:
         cha1 = self.get_channel(901726179818614824)
-        await cha1.send(content=f'*Welcome, <@{member.id}>!* \n `Read above and press Verify!`', delete_after=15) #disable
+        if location == 1: await cha1.send(content=f'*Welcome, <@{member.id}>!* \n `Read above and press Verify!`', delete_after=15) #disable
 
-client = MyClient(command_prefix=';',intents = discord.Intents.all(), case_insensitive=True) #switch prefix!
+client = MyClient(command_prefix=myprefix,intents = discord.Intents.all(), case_insensitive=True) #switch prefix!
 
 class HelpEmbed(discord.Embed): # Our embed with some preset attributes to avoid setting it multiple times
     def __init__(self, **kwargs):
@@ -277,11 +291,58 @@ async def welcmsg(ctx):
       await ctx.message.delete()
       await ctx.send(embed=embed3, view=PersistentView())
 
+@client.tree.command(
+    name='ping',
+    description='Check the bot\'s latency',
+)
+async def ping(interaction: discord.Interaction):
+    """Pong!"""
+    await interaction.response.send_message(f'Pong! In {round(client.latency * 1000)}ms', ephemeral=True)
+
+@client.command()
+@commands.guild_only()
+@commands.has_guild_permissions(administrator=True)
+async def sync(
+  ctx: Context, guilds: Greedy[discord.Object], spec: Optional[Literal["~", "*", "^"]] = None) -> None:
+    if not guilds:
+        if spec == "~":
+            synced = await ctx.bot.tree.sync(guild=ctx.guild)
+        elif spec == "*":
+            ctx.bot.tree.copy_global_to(guild=ctx.guild)
+            synced = await ctx.bot.tree.sync(guild=ctx.guild)
+        elif spec == "^":
+            ctx.bot.tree.clear_commands(guild=ctx.guild)
+            await ctx.bot.tree.sync(guild=ctx.guild)
+            synced = []
+        else:
+            synced = await ctx.bot.tree.sync()
+
+        await ctx.send(
+            f"Synced {len(synced)} commands {'globally' if spec is None else 'to the current guild.'}"
+        )
+        return
+
+    ret = 0
+    for guild in guilds:
+        try:
+            await ctx.bot.tree.sync(guild=guild)
+        except discord.HTTPException:
+            pass
+        else:
+            ret += 1
+
+    await ctx.send(f"Synced the tree to {ret}/{len(guilds)}.")
+
+
+
+#@commands.command(help='pingpong', aliases=['pong'])
+#async def ping(self, ctx):
+  #await ctx.send()
 
 
 try:
-  client.run('ODU0ODk5NDc0OTU0NDUzMDAz.YMqpLg.McknRaoLXob6Pxc0_H4lM0A1dqc') #switch prefix!!
-#client.run(os.getenv("DISCORD_TOKEN"))
+  if location == 0: client.run('ODU0ODk5NDc0OTU0NDUzMDAz.YMqpLg.McknRaoLXob6Pxc0_H4lM0A1dqc') #switch prefix!!
+  else: client.run(os.getenv("DISCORD_TOKEN"))
 except Exception:
   exep = sys.exc_info()
   expv = exep[1]
