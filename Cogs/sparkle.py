@@ -178,7 +178,7 @@ class Snowball(commands.Cog):
     async def on_ready(self):
       print('Snowball is online')
     
-    '''@commands.Cog.listener()
+    @commands.Cog.listener()
     async def on_message(self, message):
       #await self.bot.process_commands(message)
       if message.author.id == self.bot.user.id:
@@ -256,7 +256,7 @@ class Snowball(commands.Cog):
                 self.chatTar[mesCha] = random.randint(cha[3], cha[4])
                 self.Twait[mesCha] = False
                 print(self.chatTar[mesCha] + 1)
-                break'''
+                break
               
     @commands.command(help='Check your score', aliases=['bal', 'sparkles'])
     async def balance(self, ctx, user:discord.Member=None):
@@ -271,7 +271,7 @@ class Snowball(commands.Cog):
 
     @commands.command(help='View the leaderboard', aliases=['lb'])
     async def leaderboard(self, ctx):
-      await ctx.channel.trigger_typing()
+      await ctx.channel.typing()
       guildid = ctx.guild.id
       lbid = guildScores(guildid)
       #print(lbid)
@@ -325,7 +325,7 @@ class Snowball(commands.Cog):
               current10 = lbid1[(currentpos*10-9):]
             #deal with 10 leaderboards
             if len(lbid) > (currentpos*10):
-              current10 = lbid1[(currentpos*10-9):(currentpos*10)]
+              current10 = lbid1[(currentpos*10-10):(currentpos*10)]
             await messagel.edit(embed=CreateLb(current10, ((currentpos*10)-10)))
         if str(reaction.emoji) == "▶️" and user.id == ctx.author.id:
           #move forward
@@ -337,10 +337,10 @@ class Snowball(commands.Cog):
             currentpos+=1 
             #deal with short leaderboards
             if len(lbid) > (currentpos*10):
-              current10 = lbid1[(currentpos*10-9):]
+              current10 = lbid1[(currentpos*10-10):]
             #deal with 10 leaderboards
             if len(lbid) > (currentpos*10):
-              current10 = lbid1[(currentpos*10-9):(currentpos*10)]
+              current10 = lbid1[(currentpos*10-10):(currentpos*10)]
             await messagel.edit(embed=CreateLb(current10, ((currentpos*10)-10)))
   
     @commands.command(help='Show which channels spawn sparkles, and the values for those channels!')

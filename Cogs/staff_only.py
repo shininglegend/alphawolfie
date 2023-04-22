@@ -37,12 +37,12 @@ class StaffOnly(commands.Cog):
 
     @commands.command(help='Send an embed, Admin only', aliases=['embed','emg'])
     @commands.has_role(470547452873932806)
-    async def embed_msg(self, ctx, *, msgd):
-      await ctx.channel.trigger_typing()
-      embed = Embed(color=Color.magenta(), title=msgd)
+    async def embed_msg(self, ctx, *, msg):
+      await ctx.channel.typing()
+      embed = Embed(color=Color.magenta(), title=msg)
       await ctx.send(embed=embed)
       cha = self.bot.get_channel(777042897630789633)
-      await cha.send(str(ctx.author)+' used embed with msg: ' + str(msgd))
+      await cha.send(str(ctx.author)+' used embed with msg: ' + str(msg))
       await ctx.message.delete()
 
     @commands.command(help='Get help with lag in-game')
@@ -68,10 +68,6 @@ class StaffOnly(commands.Cog):
     async def ar_add(self, ctx, iemoji, trigger):      
       emoji=iemoji
       print(f'{emoji}:{trigger}')
-      #dab = db['newreacts']
-      #dab[str(trigger)] = str(emoji)
-      #print(dab)
-      #db['newreacts'] = dab
       curr.execute('INSERT INTO reactions(trigger, eid) VALUES (%s, %s)', (str(trigger), str(emoji)))
       conn.commit()
       await ctx.send(f'{emoji} added for the trigger **{trigger}**')
@@ -81,9 +77,19 @@ class StaffOnly(commands.Cog):
     async def ar_list(self, ctx):
         dab = get_ar()
         m = ""
+        l = ""
         for i in dab:
-          m += f"{i} : {dab[i]}\n"
-        await ctx.send(m)
+          if len(i) > 15:
+            m += f"(ID) - <@{i}> : {dab[i]}\n"
+          else:
+            m += f"{i} : {dab[i]}\n"
+          if len(m) > 1700:
+            l = m
+            m = ''
+        if l != '':
+          await ctx.send(f'{l}')
+        await ctx.send(f'{m}')
+          
 
     @commands.command(help="Delete an autoreaction. Dev only")
     @commands.has_role(470547452873932806) 
@@ -107,7 +113,7 @@ class StaffOnly(commands.Cog):
     @commands.has_any_role(470547452873932806, 670427731468746783, 714891905392967691)
     async def alert(self, ctx, alert):
       print(alert)
-      await ctx.channel.trigger_typing()
+      await ctx.channel.typing()
       try:
         alert = int(alert)
       except Exception:

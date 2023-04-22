@@ -250,7 +250,7 @@ class Donations(commands.Cog):
       if type not in ('month', 'total'):
           await ctx.send('That\'s not a valid type.')
           return
-      await ctx.channel.trigger_typing()
+      await ctx.channel.typing()
       if type == 'month': type = 'Monthly'
       elif type == 'total': type = 'Total'
       if type == 'Monthly': lbid = guildScoresM()

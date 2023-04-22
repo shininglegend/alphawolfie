@@ -2,6 +2,10 @@ import discord, os, sys, json, random, logging, requests, datetime
 from discord.ext import commands
 #from replit import db
 from discord import Embed, Color
+import psycopg2 as pgsql
+
+conn = pgsql.connect("dbname=alphawolfie user=postgres password=password")
+curr = conn.cursor()
 
 def get_quote():
   response = requests.get("https://zenquotes.io/api/random")
@@ -41,7 +45,7 @@ class Misc(commands.Cog):
             #pass
             check = True
         if check != True and message.attachments == []:
-          await message.author.send(f'Your message in <#{message.channel.id}> was deleted because it did not have an attachment. \nHere\'s the message for referance: {message.content}')
+          await message.author.send(f'Your message in <#{message.channel.id}> was deleted because it did not have an attachment. \nHere\'s the message for reference: {message.content}')
           await self.log0101(message=f'<@{message.author.id}> in <#{message.channel.id}> : {message.content}', title=f'Deleted message')
           await message.delete()
           #print('Deleted message')
@@ -74,8 +78,8 @@ class Misc(commands.Cog):
 
     @commands.command(name='count', help='Count the characters in a message')
     @commands.cooldown(1, 60)
-    async def count(self, ctx, *, msgd):
-      count = len(msgd)
+    async def count(self, ctx, *, msg):
+      count = len(msg)
       if count == 0:
         await ctx.send('Nothing to count.')
       else:
@@ -119,6 +123,37 @@ class Misc(commands.Cog):
       if len(message2) > 0:
         embed2 = Embed(color = Color.green(), description=message2)
         await ctx.send(embed=embed2)
+    
+    @commands.command(help='Add your own autoreaction when you are pinged.')
+    @commands.has_any_role(845734135922163762, 470547452873932806, 670427731468746783)
+    async def claim(self, ctx, emoji):
+      trigger = f'{ctx.author.id}'
+      print(f'{emoji}:{trigger}')
+      try: 
+        await ctx.message.add_reaction(emoji)
+        if emoji == "⭐":
+          raise Exception("⭐ is not allowed.")
+      except Exception as e:
+        await ctx.send(f"That is not a valid emoji. Emojis must be from this server. \nError: {e}", delete_after=15) 
+        return
+      #db['newreacts'] = dab
+      emojireacts = {}
+      curr.execute('SELECT * FROM reactions')
+      for row in curr.fetchall():
+        emojireacts[row[1]] = row[2]
+      if trigger in emojireacts:
+        #print(f"{trigger} - {emoji}")
+        curr.execute('UPDATE reactions SET eid=%s WHERE trigger = %s', (str(emoji), str(trigger)))
+        await ctx.send(f'The emoji for <@{trigger}> has been updated to {emoji}.')
+      else:
+        curr.execute('INSERT INTO reactions(trigger, eid) VALUES (%s, %s)', (str(trigger), str(emoji)))
+        await ctx.send(f'{emoji} added to react when <@{trigger}> is mentioned.')
+      conn.commit()
+    
+    @claim.error
+    async def claim_error(self, ctx, error):
+      await ctx.send(f'Error: {error}', delete_after=15)
+
 
 async def setup(bot):
   await bot.add_cog(Misc(bot))

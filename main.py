@@ -19,7 +19,7 @@ MY_GUILD = discord.Object(id=468176956232302603)
 #emojireacts = db['newreacts']
 
 #0 = on my machine, 1 = on digital ocean
-location = 1
+location = 0
 
 if location == 0:
   myprefix = '>'
@@ -76,6 +76,52 @@ class MyClient(commands.Bot):
     embed3 = Embed(title=title, description=message, color=Color.green(), timestamp=datetime.datetime)
     await cha.send(embed=embed3)
 
+  async def logerrors(self, message, ctx=None):
+    # Send me a dm on error
+    # First print the error
+    print(message)
+    print(ctx)
+    # select a channel based on whether we are on the beta or not
+    if location == 1: #  digital ocean
+      cha = await self.fetch_channel(853005257528049704)
+    else: # on my machine
+      cha = await self.fetch_channel(906061945591963648)
+    embed3 = Embed(title="Error:", description=message, color=Color.red(), timestamp=datetime.datetime.now())
+    if ctx:
+      embed3.add_field(name="Command:", value=ctx.message.content)
+      embed3.add_field(name="Author:", value=f'{ctx.author.name}#{ctx.author.discriminator}')
+      embed3.add_field(name="Author ID:", value=ctx.author.id)
+      embed3.add_field(name="Channel:", value=ctx.channel.name)
+      embed3.add_field(name="Channel Link:", value=f'<#{ctx.channel.id}>')
+    await cha.send(embed=embed3)
+  
+  # Error handling
+  @commands.Cog.listener()
+  async def on_command_error(self, ctx, error):
+    # Send me a dm if needed
+    if isinstance(error, commands.CommandNotFound):
+      return
+    elif isinstance(error, commands.MissingRequiredArgument):
+      ctx.command.reset_cooldown(ctx)
+      await ctx.send(f'You are missing a required argument. Please use `{ctx.prefix}{ctx.command} {ctx.command.signature}`', delete_after=10)
+      return
+    elif isinstance(error, commands.MissingPermissions):
+      ctx.command.reset_cooldown(ctx)
+      await ctx.send(f'You are missing the required permissions to use this command.', delete_after=5)
+      return
+    elif isinstance(error, commands.CommandOnCooldown):
+      await ctx.message.add_reaction('⏱️')
+      return
+    elif isinstance(error, commands.CheckFailure):
+      ctx.command.reset_cooldown(ctx)
+      await ctx.send(f'You are missing the required permissions to use this command.', delete_after=5)
+      return
+    else:
+      ctx.command.reset_cooldown(ctx)
+      await ctx.send(f'An error has occured. If this continues to happen, please open a support ticket.', delete_after=5)
+      await self.logerrors(str(error), ctx)
+      return
+
   async def on_ready(self):
     if not self.persistent_views_added:
       self.add_view(PersistentView())
@@ -102,15 +148,24 @@ class MyClient(commands.Bot):
       emojireacts[row[1]] = row[2]
     
     #print(emojireacts)
-
+    #print(message.mentions)
+    mentions = []
+    for mention in message.mentions:
+      mentions.append(str(mention.id))
+    #print(mentions)
     for trigs in emojireacts:
-      if trigs in (str.lower(msg)):
-        #emote = self.get_emoji(int(emojireacts[trigs]))
+      if trigs in mentions:
+        print('found mention: '+trigs)
         emote = emojireacts[trigs]
-        #emote = class(emote)
-        #print(emojireacts[trigs])
         if not message.channel.id in [876586125987295283, 876586168953737246]:
-          if location == 1: await message.add_reaction(emote) #disable
+          if location == 1: 
+            await message.add_reaction(emote) #disable
+          i = 0
+      elif trigs in (str.lower(msg)):
+        emote = emojireacts[trigs]
+        if not message.channel.id in [876586125987295283, 876586168953737246]:
+          if location == 1: 
+            await message.add_reaction(emote) #disable
           i = 0
 
     if msg.startswith(';'):
@@ -292,10 +347,10 @@ async def welcmsg(ctx):
       await ctx.send(embed=embed3, view=PersistentView())
 
 @client.tree.command(
-    name='ping',
+    name='alphaping',
     description='Check the bot\'s latency',
 )
-async def ping(interaction: discord.Interaction):
+async def alphaping(interaction: discord.Interaction):
     """Pong!"""
     await interaction.response.send_message(f'Pong! In {round(client.latency * 1000)}ms', ephemeral=True)
 
@@ -341,7 +396,11 @@ async def sync(
 
 
 try:
-  if location == 0: client.run('ODU0ODk5NDc0OTU0NDUzMDAz.YMqpLg.McknRaoLXob6Pxc0_H4lM0A1dqc') #switch prefix!!
+  
+  if location == 0: 
+    f = open("key.txt", 'r')
+    key = f.read()
+    client.run(key) #switch prefix!!
   else: client.run(os.getenv("DISCORD_TOKEN"))
 except Exception:
   exep = sys.exc_info()
