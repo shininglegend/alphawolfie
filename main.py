@@ -2,7 +2,7 @@ import discord, os, sys, json, random, logging, time, datetime, contextlib
 #from keep_alive import keep_alive
 from discord.ext import commands
 #from replit import db
-from discord import Embed, Color, ui, app_commands
+from discord import Embed, Color #, ui, app_commands
 #import sqlite3
 from typing import Literal, Optional
 from discord.ext.commands import Greedy, Context
@@ -36,7 +36,7 @@ def randomtopic():
 
 
 def is_it_me(ctx):
-    return ctx.message.author.id == 585991293377839114
+    return (ctx.message.author.id == 585991293377839114) or (ctx.message.author.id == 483977391459532800)
 
 class PersistentView(discord.ui.View):
     def __init__(self):

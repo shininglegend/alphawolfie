@@ -1,1 +1,4 @@
 key.txt
+Cogs/__pycache__/
+.vscode/
+.github/
