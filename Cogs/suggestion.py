@@ -14,8 +14,8 @@ curr = conn.cursor()
 #con = sqlite3.connect('/root/data/data1.db')
 
 #cur = con.cursor()
-#cur.execute("CREATE TABLE IF NOT EXISTS suggestions2 (id INTEGER PRIMARY KEY AUTOINCREMENT, msgid INTEGER, userid INTEGER, content TEXT, edited INTEGER DEFAULT 0, response TEXT DEFAULT 'None', responseid INTEGER DEFAULT 0, thread BIGINT DEFAULT 0)")
-#con.commit()
+curr.execute("CREATE TABLE IF NOT EXISTS suggestions2 (id INTEGER PRIMARY KEY AUTOINCREMENT, msgid INTEGER, userid INTEGER, content TEXT, edited INTEGER DEFAULT 0, response TEXT DEFAULT 'None', responseid INTEGER DEFAULT 0, thread BIGINT DEFAULT 0)")
+conn.commit()
 
 # add a suggestion to the database
 def suggestion_add(vid, userid, msgid, suggestion, thread):
