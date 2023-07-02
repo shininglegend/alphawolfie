@@ -7,6 +7,10 @@ import psycopg2 as pgsql
 conn = pgsql.connect("dbname=alphawolfie user=postgres password=password")
 curr = conn.cursor()
 
+MEDIA_CHANNEL_IDS = [835164179001901099, 911020430368866314]
+# These roles bypass the media check
+ROLE_IDS = [470547452873932806, 670427731468746783] 
+
 def get_quote():
   response = requests.get("https://zenquotes.io/api/random")
   json_data = json.loads(response.text)
@@ -35,25 +39,53 @@ class Misc(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-      if message.channel.id in [835164179001901099, 911020430368866314]:
-        check = False
-        for i in [470547452873932806, 670427731468746783]:
-          role = message.guild.get_role(i)
-          #print(role)
-          #print(message.author.roles)
-          if role in message.author.roles:
-            #pass
-            check = True
-        if check != True and message.attachments == []:
-          await message.author.send(f'Your message in <#{message.channel.id}> was deleted because it did not have an attachment. \nHere\'s the message for reference: {message.content}')
-          await self.log0101(message=f'<@{message.author.id}> in <#{message.channel.id}> : {message.content}', title=f'Deleted message')
-          await message.delete()
-          #print('Deleted message')
-        if message.attachments != [] and message.channel.id == 911020430368866314:
-          await message.add_reaction("<:upvote:904548817783894026>")
-          await message.add_reaction("<:downvote:904548736884150292>")
+      if message.channel.id == 1066091397809188904:
+        if message.content not in ['ok', 'ck']:
+          await message.delete(delay=1)
+      # Delete non-media messages
+      if message.channel.id not in MEDIA_CHANNEL_IDS:
+          return
 
+      user_roles_ids = {role.id for role in message.author.roles}
+      user_has_role = any(role_id in user_roles_ids for role_id in ROLE_IDS)
 
+      if not user_has_role and not message.attachments:
+        await message.delete()
+        await message.author.send(
+            f'Your message in <#{message.channel.id}> was deleted because it did not have an attachment. '
+            f'Here\'s the message for reference: {message.content}'
+        )
+        await self.log0101(message=f'<@{message.author.id}> in <#{message.channel.id}> : {message.content}', title='Deleted message')   
+        #print('Deleted message')
+
+        # This adds reactions in the maps channel
+        if message.attachments and message.channel.id == 911020430368866314:
+          # add reactions based on if we have custom emojis or not
+          try:
+            await message.add_reaction("<:upvote:904548817783894026>")
+            await message.add_reaction("<:downvote:904548736884150292>")
+          except discord.errors.HTTPException:
+            await message.add_reaction("👍")
+            await message.add_reaction("👎")
+
+    @commands.Cog.listener()
+    async def on_message_edit(self, msgbefore, message):
+      # Delete non-media messages on edit
+      # Delete non-media messages
+      if message.channel.id not in MEDIA_CHANNEL_IDS:
+          return
+
+      user_roles_ids = {role.id for role in message.author.roles}
+      user_has_role = any(role_id in user_roles_ids for role_id in ROLE_IDS)
+
+      if not user_has_role and not message.attachments:
+        await message.author.send(
+            f'Your message in <#{message.channel.id}> was deleted because it did not have an attachment. '
+            f'Here\'s the message for reference: {message.content}'
+        )
+        await self.log0101(message=f'<@{message.author.id}> in <#{message.channel.id}> : {message.content}', title='Deleted message')
+        await message.delete()
+        #print('Deleted message')
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):

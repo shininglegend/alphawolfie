@@ -15,9 +15,9 @@ emoji = 918630874898120705
 curr = conn.cursor()
 #print('I updated')
 
-curr.execute("CREATE TABLE IF NOT EXISTS sparklescores(id INTEGER PRIMARY KEY AUTOINCREMENT, guild INTEGER, userid INTEGER, score INTEGER DEFAULT 0)")
-curr.execute("CREATE TABLE IF NOT EXISTS sparklesettings(id INTEGER PRIMARY KEY AUTOINCREMENT, guild INTEGER, emoji INTEGER)")
-curr.execute("CREATE TABLE IF NOT EXISTS sparklechannels(id INTEGER PRIMARY KEY AUTOINCREMENT, guild INTEGER, channel INTEGER, minScore INTEGER, maxScore INTEGER)")
+#curr.execute("CREATE TABLE IF NOT EXISTS sparklescores(id INTEGER PRIMARY KEY AUTOINCREMENT, guild INTEGER, userid INTEGER, score INTEGER DEFAULT 0)")
+#curr.execute("CREATE TABLE IF NOT EXISTS sparklesettings(id INTEGER PRIMARY KEY AUTOINCREMENT, guild INTEGER, emoji INTEGER)")
+#curr.execute("CREATE TABLE IF NOT EXISTS sparklechannels(id INTEGER PRIMARY KEY AUTOINCREMENT, guild INTEGER, channel INTEGER, minScore INTEGER, maxScore INTEGER)")
 #0 id
 #1 guild
 #2 channel

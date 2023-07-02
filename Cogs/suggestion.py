@@ -14,8 +14,8 @@ curr = conn.cursor()
 #con = sqlite3.connect('/root/data/data1.db')
 
 #cur = con.cursor()
-curr.execute("CREATE TABLE IF NOT EXISTS suggestions2 (id INTEGER PRIMARY KEY AUTOINCREMENT, msgid INTEGER, userid INTEGER, content TEXT, edited INTEGER DEFAULT 0, response TEXT DEFAULT 'None', responseid INTEGER DEFAULT 0, thread BIGINT DEFAULT 0)")
-conn.commit()
+#curr.execute("CREATE TABLE IF NOT EXISTS suggestions2 (id INTEGER PRIMARY KEY AUTOINCREMENT, msgid INTEGER, userid INTEGER, content TEXT, edited INTEGER DEFAULT 0, response TEXT DEFAULT 'None', responseid INTEGER DEFAULT 0, thread BIGINT DEFAULT 0)")
+#conn.commit()
 
 # add a suggestion to the database
 def suggestion_add(vid, userid, msgid, suggestion, thread):
@@ -136,10 +136,9 @@ class Suggestion(commands.Cog):
         cha = ctx.guild.get_channel(670362431373180948)
         msg2 = await cha.send(embed=embed2)
         # Add a thread for discussion
-        threadnamelength = 20
-        if len(suggestion) < threadnamelength:
-          threadnamelength = len(suggestion)
-        thread = await msg2.create_thread(name=f"#{suggestionid} - {suggestion[:threadnamelength]}...", auto_archive_duration=60, slowmode_delay=10)
+        thread = await msg2.create_thread(name=f"#{suggestionid} - {suggestion[:min(20, len(suggestion))]}...", 
+                                          auto_archive_duration=60, 
+                                          slowmode_delay=10)
         # add it to the database
         suggestion_add(suggestionid, ctx.author.id, msg2.id, suggestion, thread.id)
         # add reactions based on if we have custom emojis or not

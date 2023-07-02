@@ -16,14 +16,14 @@ conn = pgsql.connect("dbname=alphawolfie user=postgres password=password")
 curr = conn.cursor()
 #print('I updated')
 
-curr.execute('CREATE TABLE IF NOT EXISTS donations2 (id SERIAL PRIMARY KEY, userid BIGINT NOT NULL, amount BIGINT DEFAULT 0, monthly INTEGER DEFAULT 0)')
-curr.execute('CREATE TABLE IF NOT EXISTS cache_accounts2 (id SERIAL PRIMARY KEY, amount BIGINT)')
-curr.execute('SELECT * FROM cache_accounts2')
-if curr.fetchone() == None:
-    print('Setting new cache values')
-    for i in range(0, 5):
-        curr.execute('INSERT INTO cache_accounts2(id, amount) VALUES (%s, 0)', (i+1,))
-        conn.commit() 
+#curr.execute('CREATE TABLE IF NOT EXISTS donations2 (id SERIAL PRIMARY KEY, userid BIGINT NOT NULL, amount BIGINT DEFAULT 0, monthly INTEGER DEFAULT 0)')
+#curr.execute('CREATE TABLE IF NOT EXISTS cache_accounts2 (id SERIAL PRIMARY KEY, amount BIGINT)')
+#curr.execute('SELECT * FROM cache_accounts2')
+#if curr.fetchone() == None:
+    #print('Setting new cache values')
+    #for i in range(0, 5):
+        #curr.execute('INSERT INTO cache_accounts2(id, amount) VALUES (%s, 0)', (i+1,))
+        #conn.commit() 
 
 def checkGoldTotal(cachenumber):
     a = f'CacheNinja{cachenumber}'
