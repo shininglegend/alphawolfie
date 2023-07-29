@@ -4,8 +4,7 @@ from discord.ext import commands
 from discord import Embed, Color
 import psycopg2 as pgsql
 
-conn = pgsql.connect("dbname=alphawolfie user=postgres password=password")
-curr = conn.cursor()
+from init import conn, curr
 
 MEDIA_CHANNEL_IDS = [835164179001901099, 911020430368866314]
 # These roles bypass the media check

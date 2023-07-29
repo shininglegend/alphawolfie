@@ -8,12 +8,8 @@ from discord import Embed, Color
 #import sqlite3
 import psycopg2 as pgsql
 
-conn = pgsql.connect("dbname=alphawolfie user=postgres password=password")
-#con = sqlite3.connect('/root/data/data1.db')
-#con = sqlite3.connect('data1.db')
+from init import conn, curr
 
-#cur = con.cursor()
-curr = conn.cursor()
 #print('I updated')
 
 #curr.execute('CREATE TABLE IF NOT EXISTS donations2 (id SERIAL PRIMARY KEY, userid BIGINT NOT NULL, amount BIGINT DEFAULT 0, monthly INTEGER DEFAULT 0)')

@@ -4,6 +4,8 @@ from discord.ext import commands
 from discord import Embed, Color
 import tracemalloc
 
+from init import is_it_me
+
 tracemalloc.start()
 
 
@@ -17,8 +19,6 @@ rolelist={902946790410706964: 'red',
     902946028611862598: 'white',
     902946218613813279: 'blue'}
 
-def is_it_me(ctx):
-    return ctx.message.author.id == 585991293377839114
 
 class ColorButton(discord.ui.Button['ColorView']):
     def __init__(self, roleid = int, rolenum = int):

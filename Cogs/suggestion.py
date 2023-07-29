@@ -7,11 +7,7 @@ from discord.ext import commands
 from discord import Embed, Color, app_commands
 # import sqlite3
 import psycopg2 as pgsql
-
-conn = pgsql.connect("dbname=alphawolfie user=postgres password=password")
-#con = sqlite3.connect('data1.db')
-curr = conn.cursor()
-#con = sqlite3.connect('/root/data/data1.db')
+from init import conn, curr
 
 #cur = con.cursor()
 #curr.execute("CREATE TABLE IF NOT EXISTS suggestions2 (id INTEGER PRIMARY KEY AUTOINCREMENT, msgid INTEGER, userid INTEGER, content TEXT, edited INTEGER DEFAULT 0, response TEXT DEFAULT 'None', responseid INTEGER DEFAULT 0, thread BIGINT DEFAULT 0)")

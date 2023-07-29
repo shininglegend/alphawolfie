@@ -6,13 +6,12 @@ from discord import Embed, Color
 #import sqlite3
 import psycopg2 as pgsql
 
-conn = pgsql.connect("dbname=alphawolfie user=postgres password=password")
-#con = sqlite3.connect('/root/data/data1.db')
-#con = sqlite3.connect('data1.db')
+from init import conn, curr, is_it_me
 
+
+# This defines the emoji to use. I should really have this in a database, but I'm too lazy to do that right now. :P
 emoji = 918630874898120705
 #cur = con.cursor()
-curr = conn.cursor()
 #print('I updated')
 
 #curr.execute("CREATE TABLE IF NOT EXISTS sparklescores(id INTEGER PRIMARY KEY AUTOINCREMENT, guild INTEGER, userid INTEGER, score INTEGER DEFAULT 0)")
@@ -23,13 +22,8 @@ curr = conn.cursor()
 #2 channel
 #3 minscore
 #4 maxscore
-conn.commit()
+# conn.commit()
 
-
-
-#Custom checks
-def is_it_me(ctx):
-    return ctx.message.author.id == 585991293377839114
 
 def addGuild(guild, emoji1):
   g = None

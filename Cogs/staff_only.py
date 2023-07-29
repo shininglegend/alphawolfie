@@ -4,15 +4,8 @@ from discord.ext import commands
 from discord import Embed, Color, ui
 #import sqlite3
 import psycopg2 as pgsql
+from init import conn, curr, is_it_me
 
-conn = pgsql.connect("dbname=alphawolfie user=postgres password=password")
-curr = conn.cursor()
-#con = sqlite3.connect('data1.db')
-#con = sqlite3.connect('/root/data/data1.db')
-#cur = con.cursor()
-
-def is_it_me(ctx):
-    return ctx.message.author.id == 585991293377839114
 
 def get_ar():
   l = {}
