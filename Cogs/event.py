@@ -2,15 +2,15 @@ import discord, os, sys, json, random, logging
 from discord.errors import Forbidden
 from discord.ext import commands
 #from replit import db
-from discord import Embed, Color
+from discord import Embed, Color, app_commands
 #import sqlite3
 import psycopg2 as pgsql
 
-from init import conn, curr, is_it_me
+from init import conn, curr, is_it_me, location
 
 
 # This defines the emoji to use. I should really have this in a database, but I'm too lazy to do that right now. :P
-emoji = 918630874898120705
+emoji = 1136217458483667025
 #cur = con.cursor()
 #print('I updated')
 
@@ -149,7 +149,7 @@ def validMsg(message):
 
 
 
-class Snowball(commands.Cog):
+class Flowers(commands.Cog):
     def __init__(self, bot):
       self.bot = bot
       self.description = 'Spawn cool stuff!'
@@ -165,11 +165,13 @@ class Snowball(commands.Cog):
       self.chatChannels = chatChannels()
       print(self.chatTar)
 
+
     #events
     @commands.Cog.listener()
     async def on_ready(self):
       print('Snowball is online')
     
+
     @commands.Cog.listener()
     async def on_message(self, message):
       #await self.bot.process_commands(message)
@@ -194,7 +196,27 @@ class Snowball(commands.Cog):
               f'**Discord drops off a {Temoji}!**',
               f'**Hiii! \nDid you know about the {Temoji}?**',
               f'**You are gifted one {Temoji}. Claim it quick!**',
-              f'**Ara Ara! This {Temoji} probaly has bad luck now.**',]
+              f'**Ara Ara! This {Temoji} probaly has bad luck now.**',
+              f'**As the sun sets, the glow of a {Temoji} illuminates the darkness!**',
+              f'**Behold, a wild {Temoji} has appeared! Handle with care...**',
+              f'**A chill wind carries with it a new arrival, the {Temoji}!**',
+              f'**Out from the shadows slithers a {Temoji}. What\s this?**',
+              f'**Lucky day! A sparkling {Temoji} is yours for the taking!**',
+              f'**An ominous mist lifts, revealing a solitary {Temoji}...**',
+              f'**It\'s your lucky day, a cheerful {Temoji} appears!**',
+              f'**Be careful! A prickly {Temoji} has sprouted.**',
+              f'**Hey there! Have you heard about the intriguing {Temoji}?**',
+              f'**With a soft rustle, a mischievous {Temoji} makes its presence known!**',
+              f'**The skies darken... as a formidable {Temoji} takes root!**',
+              f'**Good fortunes ahead! A majestic {Temoji} has bloomed.**',
+              f'**Oh, no! A troublesome {Temoji} is here.**',
+              f'**What\'s this? A dazzling {Temoji} just for you!**',
+              f'**Watch out! The thorny {Temoji} is on the loose.**',
+              f'**Pssst! A mysterious {Temoji} has been spotted.**',
+              f'**Congrats! A blooming {Temoji} just fell into your lap.**',
+              f'**A sinister {Temoji} has shown its face... proceed with caution.**',
+              f'**Cheer up! A bright {Temoji} has just arrived to brighten your day!**',
+              f'**Be wary! A potentially dangerous {Temoji} has sprouted nearby.**']
             Tmessage = await message.channel.send(random.choice(responses))
             def check(reaction, user):
               return str(reaction.emoji) == str(Temoji) and reaction.message == Tmessage
@@ -223,23 +245,38 @@ class Snowball(commands.Cog):
                 if i in [10, 20, 21]:
                   print('lost a point')
                   changeScore(user.id, guildid, -1)
-                  await Tmessage.edit(content=f'**{Temoji} froze to the hand of <@{user.id}> and they lost a point!**', delete_after=7)
+                  await Tmessage.edit(content=f'**{Temoji} wilted due to <@{user.id}>\'s black thumb and they lost a point!**', delete_after=7)
                 elif i in [5, 45, 46]:
                   print('double points')
                   changeScore(user.id, guildid, 2)
-                  await Tmessage.edit(content=f'**<@{user.id}> found a epic, perfect {Temoji} gained 2 points!**', delete_after=7)
+                  await Tmessage.edit(content=f'**<@{user.id}> appeared in a mysterious glade. Peering down, <@{user.id}> found a perfect {Temoji} and gained 2 points!**', delete_after=7)
                 elif i in [25, 30, 35, 40, 41, 42, 43]:
                   print('nothing')
-                  await Tmessage.edit(content=f'**<@{user.id}>\'s {Temoji} crumbles. They gain no points**', delete_after=7)
+                  await Tmessage.edit(content=f'**<@{user.id}>\'s {Temoji} wasn\'t watered enough. They gain no points**', delete_after=7)
                 else:
                   print('normal')
                   changeScore(user.id, guildid)
-                  responses = [f'**{Temoji} has been claimed by <@{user.id}>!**',
-                    f'**<@{user.id}> jumps to the front to claim the {Temoji}!**',
-                    f'**<@{user.id}> slides in and grabs the {Temoji}!**',
-                    f'**You were about to grab the {Temoji}, but... <@{user.id}> got there first!**',
-                    f'**A random <@{user.id}> appears and snatches the {Temoji}!**',
-                    f'**<@{user.id}> uses the power of flash and claims the {Temoji}!**']
+                  responses = [f'**<@{user.id}> springs into action, successfully capturing the elusive {Temoji}!**',
+                    f'**A wild {Temoji} appears in the meadow! Swiftly, <@{user.id}> swoops in for the catch!**',
+                    f'**<@{user.id}> treads softly and strikes quickly, bagging a beautiful {Temoji}!**',
+                    f'**In a flurry of petals, <@{user.id}> lunges forward, snatching up the startled {Temoji}!**',
+                    f'**<@{user.id}> bobs and weaves through a thicket, emerging with the coveted {Temoji}!**',
+                    f'**Like a scene from an adventure novel, <@{user.id}> bravely uncovers a hidden {Temoji}!**',
+                    f'**<@{user.id}> leaps over the log, diving headfirst to claim the radiant {Temoji}!**',
+                    f'**With a spectacular display of agility, <@{user.id}> secures the wild {Temoji}!**',
+                    f'**A rare {Temoji} reveals itself! In a flash, <@{user.id}> captures the prize!**',
+                    f'**<@{user.id}> plunges into the thorny underbrush, emerging triumphantly with the {Temoji}!**',
+                    f'**<@{user.id}> sidesteps a babbling brook, deftly plucking the startled {Temoji}!**',
+                    f'**With lightning speed, <@{user.id}> seizes the unsuspecting {Temoji}!**',
+                    f'**Spotting a beautiful {Temoji}, <@{user.id}> ventures off the beaten path to claim it!**',
+                    f'**With a whoop of joy, <@{user.id}> clambers up the hillside to claim the resplendent {Temoji}!**',
+                    f'**Through a veil of morning mist, <@{user.id}> discerns and captures a wild {Temoji}!**',
+                    f'**In the shimmering moonlight, <@{user.id}> stealthily captures the sleeping {Temoji}!**',
+                    f'**<@{user.id}> defies the rushing river, courageously rescuing the stranded {Temoji}!**',
+                    f'**<@{user.id}> tiptoes through the tulips, skillfully apprehending a hidden {Temoji}!**',
+                    f'**In a blink-and-you\'ll-miss-it moment, <@{user.id}> swoops in, capturing the fluttering {Temoji}!**',
+                    f'**Venturing into the mystic grove, <@{user.id}> uncovers and claims a radiant {Temoji}!**',
+                    f'**<@{user.id}> uses the power of sunlight and claims the {Temoji}!**']
                   await Tmessage.edit(content=random.choice(responses), delete_after=7)
                 #Tmessage = Nones
                 self.chatA[mesCha] = 0
@@ -250,8 +287,11 @@ class Snowball(commands.Cog):
                 print(self.chatTar[mesCha] + 1)
                 break
               
-    @commands.command(help='Check your score', aliases=['bal', 'sparkles'])
+
+    
+    @commands.hybrid_command(help='Check your score', aliases=['bal', 'flowers'])
     async def balance(self, ctx, user:discord.Member=None):
+      await ctx.defer()
       if not user:
         user = ctx.message.author
       guildid = ctx.guild.id
@@ -259,7 +299,13 @@ class Snowball(commands.Cog):
       Temoji = self.bot.get_emoji(getEmote(ctx.guild.id))  
       msg = f'__{user.display_name}__ has {m}  {Temoji}!'
       embed = Embed(color=Color.green(), title=msg)
-      await ctx.reply(embed=embed)
+      await ctx.send(embed=embed)
+
+    @app_commands.command(description='Spawn a flower on demand')
+    async def spawn(self, interaction: discord.Interaction) -> None:
+      await interaction.response.send_message("No. Why would I possibly let you cheat?!", ephemeral=True)
+      await interaction.guild.get_channel(903139993646682113).send(f'<@{interaction.user.id}> tried to spawn a flower on demand! Bored?')
+
 
     @commands.command(help='View the leaderboard', aliases=['lb'])
     async def leaderboard(self, ctx):
@@ -285,9 +331,9 @@ class Snowball(commands.Cog):
           umember = ctx.guild.get_member(int(uid))
           #print(umember)
           if not umember == None: 
-            names = f'{cPos}: {umember.name}#{umember.discriminator}'
+            names = f'{cPos}: {umember.name}'
           else:
-            names = f'{cPos}: Missing User#0000'
+            names = f'{cPos}: Missing User (<@{uid}>)'
           uscore = f'  {Temoji} `{uscore}`'
           cembed.add_field(name=names, value=uscore, inline=False)
         return cembed
@@ -335,8 +381,17 @@ class Snowball(commands.Cog):
               current10 = lbid1[(currentpos*10-10):(currentpos*10)]
             await messagel.edit(embed=CreateLb(current10, ((currentpos*10)-10)))
   
-    @commands.command(help='Show which channels spawn sparkles, and the values for those channels!')
-    async def sChaList(self, ctx):
+
+
+    @commands.group(help='Admin commands for the bot', aliases=['ea'])
+    @commands.has_permissions(administrator=True)
+    async def eAdmin(self, ctx):
+      if ctx.invoked_subcommand is None:
+        await ctx.send('Invalid admin command passed. Git gud')
+
+    
+    @eAdmin.command(help='Show which channels spawn, and the values for those channels!', aliases=['cl', 'chalist', 'channellist'])
+    async def chaList(self, ctx):
       Temoji = self.bot.get_emoji(getEmote(ctx.guild.id))  
       embed = discord.Embed(color=Color.green(), title=f'{Temoji} will spawn in these channels:')
       pos = 0
@@ -355,9 +410,10 @@ class Snowball(commands.Cog):
           embed.add_field(name=pos, value=f'<#{channel}>: {currCha[3]-1}-{currCha[4]-1}', inline=False)
       await ctx.reply(embed=embed)
     
-    @commands.command(help='Stop a channel from spawning. Admin only', aliases=['sChaDel'])
+
+    @eAdmin.command(help='Stop a channel from spawning. Admin only', aliases=['ChaDel', 'channelremove', 'channeldelete'])
     @commands.has_guild_permissions(administrator=True)
-    async def sChaRemove(self, ctx, cha:discord.TextChannel):
+    async def chaRemove(self, ctx, cha:discord.TextChannel):
       Temoji = self.bot.get_emoji(getEmote(ctx.guild.id))  
       i = chatChannels()
       print(i)
@@ -369,9 +425,10 @@ class Snowball(commands.Cog):
       else:
         await ctx.reply('That channel was not found')
 
-    @commands.command(help='Start spawning in a channel. Admin only')
+
+    @eAdmin.command(help='Start spawning in a channel. Admin only', aliases=['channeladd'])
     @commands.has_guild_permissions(administrator=True)
-    async def sChaAdd(self, ctx, cha:discord.TextChannel, minScore=5, maxScore=10):
+    async def chaAdd(self, ctx, cha:discord.TextChannel, minScore=5, maxScore=10):
       Temoji = self.bot.get_emoji(getEmote(ctx.guild.id))
       try:
         b = await cha.send('This is a test message. You can safely ignore it.', delete_after=3)
@@ -394,9 +451,10 @@ class Snowball(commands.Cog):
       else:
         await ctx.reply(f'That channel is already spawning {Temoji}!')
 
-    @commands.command(help='Update the spawnrate. Admin only', aliases=['sChaUp'])
+
+    @eAdmin.command(help='Update the spawnrate. Admin only', aliases=['ChaUp', 'channelupdate'])
     @commands.has_guild_permissions(administrator=True)
-    async def sChannelUpdate(self, ctx, cha:discord.TextChannel, minScore=5, maxScore=10):
+    async def chaUpdate(self, ctx, cha:discord.TextChannel, minScore=5, maxScore=10):
       Temoji = self.bot.get_emoji(getEmote(ctx.guild.id))
       i = chatChannels()
       cha = cha.id
@@ -412,17 +470,18 @@ class Snowball(commands.Cog):
         await ctx.reply(f'That channel isn\'t spawning {Temoji}!')
         
     
-    @commands.command(help='Send a backup of the database')
+    @eAdmin.command(help='Send a backup of the database')
     @commands.check(is_it_me)
-    async def sBackup(self, ctx):
+    async def backup(self, ctx):
       guildid = ctx.guild.id
       i = guildScores(guildid)
       embed = discord.Embed(color=Color.green(), title='Current user database for this guild:', description=str(i))
       await ctx.send(embed=embed)
 
-    @commands.command(help='Fix Sparkles if they aren\'t working, Admin only')
+
+    @eAdmin.command(help='Fix the event if they aren\'t working, Admin only', aliases=['fixme', 'workyoustupidbot'])
     @commands.has_guild_permissions(administrator=True)
-    async def sReClear(self, ctx):
+    async def fix(self, ctx):
       global conn, curr
       conn.close()
       conn = pgsql.connect("dbname=alphawolfie user=postgres password=password")
@@ -445,9 +504,10 @@ class Snowball(commands.Cog):
       await ctx.send(content='<@585991293377839114>', embed=embed)
       await ctx.send('Done. Hope that works!')
     
-    @commands.command(help='Reset the sparkle scores for this server.')
+
+    @eAdmin.command(help='Reset the scores for this server.')
     @commands.check(is_it_me)
-    async def sReset(self, ctx):
+    async def reset(self, ctx):
       guildid = ctx.guild.id
       dev = self.bot.get_user(585991293377839114)
       i = guildScores(guildid)
@@ -458,9 +518,10 @@ class Snowball(commands.Cog):
       await ctx.send(embed=embed2)
       await ctx.message.delete()
 
-    @commands.command(help='Check bot status, Dev only')
+
+    @eAdmin.command(help='Check bot status, Dev only')
     @commands.check(is_it_me)
-    async def sCheck(self, ctx):
+    async def check(self, ctx):
       embed = discord.Embed(color=Color.green(), title='Current variable status')
       embed.add_field(name='Waiting for a sparkle to be claimed:', value=self.Twait)
       embed.add_field(name='Messages counted:', value=self.chatA)
@@ -470,4 +531,4 @@ class Snowball(commands.Cog):
 
     
 async def setup(bot):
-  await bot.add_cog(Snowball(bot))
+  await bot.add_cog(Flowers(bot))
