@@ -218,6 +218,8 @@ class Flowers(commands.Cog):
               f'**Cheer up! A bright {Temoji} has just arrived to brighten your day!**',
               f'**Be wary! A potentially dangerous {Temoji} has sprouted nearby.**']
             Tmessage = await message.channel.send(random.choice(responses))
+            if random.randint(1, 5) == 1:
+              await message.channel.send(f'Bonus message to mess up you autoclickers!\nGo do something else for a bit.\nYou\'re too obbsessed with {Temoji}!', delete_after=3)
             def check(reaction, user):
               return str(reaction.emoji) == str(Temoji) and reaction.message == Tmessage
             print('Sent reaction')
@@ -325,7 +327,7 @@ class Flowers(commands.Cog):
         cembed.set_footer(text=f'Requested by: {ctx.author.name}#{ctx.author.discriminator}')
         #print(current10)
         for uid in current10:
-          print(uid)
+          #print(uid)
           cPos+=1
           uscore = lbid[uid]
           umember = ctx.guild.get_member(int(uid))
