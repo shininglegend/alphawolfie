@@ -122,23 +122,23 @@ class MyClient(commands.Bot):
     if msg.startswith(';'):
       print(str(msg))
 
-  async def on_raw_reaction_add(self, reaction):
-    if reaction.channel_id == 901726179818614824:
-      guild = self.get_guild(reaction.guild_id)
-      channel = self.get_channel(670362292659159040)
-      print('Verified user')
-      if location == 1:
-        await channel.send(f'Welcome, <@{reaction.user_id}> as the {guild.member_count}th user!')
-        await channel.send(f'~{randomtopic()}') #disable
+  # async def on_raw_reaction_add(self, reaction):
+  #   if reaction.channel_id == 901726179818614824:
+  #     guild = self.get_guild(reaction.guild_id)
+  #     channel = self.get_channel(670362292659159040)
+  #     print('Verified user')
+  #     if location == 1:
+  #       await channel.send(f'Welcome, <@{reaction.user_id}> as the {guild.member_count}th user!')
+  #       await channel.send(f'~{randomtopic()}') #disable
   
-  async def on_member_join(self, member):
-    if member.guild.id == 468176956232302603:
-      #print(len(member.roles))
-      #memberid = member.id
-      #time.sleep(5)
-      #guild1 = self.get_guild(468176956232302603)
-      #member = await guild1.fetch_member(memberid)
-      #print(len(member.roles))
-      if len(member.roles) == 1:
-        cha1 = self.get_channel(901726179818614824)
-        if location == 1: await cha1.send(content=f'*Welcome, <@{member.id}>!* \n `Read above and press Verify!`', delete_after=15) #disable
+  # async def on_member_join(self, member):
+  #   if member.guild.id == 468176956232302603:
+  #     #print(len(member.roles))
+  #     #memberid = member.id
+  #     #time.sleep(5)
+  #     #guild1 = self.get_guild(468176956232302603)
+  #     #member = await guild1.fetch_member(memberid)
+  #     #print(len(member.roles))
+  #     if len(member.roles) == 1:
+  #       cha1 = self.get_channel(901726179818614824)
+  #       if location == 1: await cha1.send(content=f'*Welcome, <@{member.id}>!* \n `Read above and press Verify!`', delete_after=15) #disable
