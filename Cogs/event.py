@@ -335,7 +335,7 @@ class Flowers(commands.Cog):
             uscore = f'  {Temoji} `{uscore}`'
           else:
             names = f'{cPos}: Missing User'
-            uscore = f'  {Temoji} `{uscore} <@{uid}>`'
+            uscore = f'  {Temoji} `{uscore}` <@{uid}>'
           cembed.add_field(name=names, value=uscore, inline=False)
         return cembed
       currentpos = 1
