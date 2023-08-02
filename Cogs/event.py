@@ -24,6 +24,8 @@ emoji = 1136217458483667025
 #4 maxscore
 # conn.commit()
 
+def notGeneral(ctx):
+  return not(any([ctx.channel.id == 670362292659159040, ctx.channel.id == 774408820721844254]))
 
 def addGuild(guild, emoji1):
   g = None
@@ -142,7 +144,7 @@ def guildScores(guildid):
   return channels'''
 
 def validMsg(message):
-  if ' ' in message or len(message) > 4:
+  if ' ' in message or len(message) > 5:
     return True
   else:
     return False
@@ -218,8 +220,11 @@ class Flowers(commands.Cog):
               f'**Cheer up! A bright {Temoji} has just arrived to brighten your day!**',
               f'**Be wary! A potentially dangerous {Temoji} has sprouted nearby.**']
             Tmessage = await message.channel.send(random.choice(responses))
-            if random.randint(1, 5) == 1:
+            antiautoclicker = random.randint(1, 5)
+            if antiautoclicker == 1:
               await message.channel.send(f'Bonus message to mess up you autoclickers!\nGo do something else for a bit.\nYou\'re too obbsessed with {Temoji}!', delete_after=3)
+            elif antiautoclicker == 2:
+              await Tmessage.add_reaction('👀')
             def check(reaction, user):
               return str(reaction.emoji) == str(Temoji) and reaction.message == Tmessage
             print('Sent reaction')
@@ -292,6 +297,7 @@ class Flowers(commands.Cog):
 
     
     @commands.hybrid_command(help='Check your score', aliases=['bal', 'flowers'])
+    @commands.check(notGeneral)
     async def balance(self, ctx, user:discord.Member=None):
       await ctx.defer()
       if not user:
@@ -310,6 +316,7 @@ class Flowers(commands.Cog):
 
 
     @commands.command(help='View the leaderboard', aliases=['lb'])
+    @commands.check(notGeneral)
     async def leaderboard(self, ctx):
       await ctx.channel.typing()
       guildid = ctx.guild.id
@@ -383,8 +390,6 @@ class Flowers(commands.Cog):
             if len(lbid) > (currentpos*10):
               current10 = lbid1[(currentpos*10-10):(currentpos*10)]
             await messagel.edit(embed=CreateLb(current10, ((currentpos*10)-10)))
-  
-
 
     @commands.group(help='Admin commands for the bot', aliases=['ea'])
     @commands.has_permissions(administrator=True)

@@ -52,6 +52,9 @@ class MyClient(commands.Bot):
       # Send me a dm if needed ()
       if isinstance(error, commands.CommandNotFound):
         return
+      elif isinstance(error, commands.CommandOnCooldown):
+        await ctx.message.add_reaction('⏱️')
+        return
       elif isinstance(error, commands.MissingRequiredArgument):
         ctx.command.reset_cooldown(ctx)
         await ctx.send(f'You are missing a required argument. Please use `{ctx.prefix}{ctx.command} {ctx.command.signature}`', delete_after=10)
@@ -60,11 +63,15 @@ class MyClient(commands.Bot):
         ctx.command.reset_cooldown(ctx)
         await ctx.send(f'You are missing the required permissions to use this command.', delete_after=5)
         return
-      elif isinstance(error, commands.CommandOnCooldown):
-        await ctx.message.add_reaction('⏱️')
-        return
       elif isinstance(error, commands.CheckFailure):
         ctx.command.reset_cooldown(ctx)
+        await ctx.send(f'Wrong channel, or missing permissions.', delete_after=5)
+        return
+      elif isinstance(error, commands.BadArgument):
+        ctx.command.reset_cooldown(ctx)
+        await ctx.send(f'You have entered a bad argument. Please use `{ctx.prefix}{ctx.command} {ctx.command.signature}`', delete_after=10)
+        return
+      elif isinstance(error, commands.CheckFailure):
         await ctx.send(f'You are missing the required permissions to use this command.', delete_after=5)
         return
       else:
