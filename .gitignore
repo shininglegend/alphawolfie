@@ -1,2 +1,6 @@
 key.txt
 banbotgame.py
+.env
+.venv/
+.vscode/
+.github/

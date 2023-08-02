@@ -46,31 +46,32 @@ class MyClient(commands.Bot):
     await cha.send(embed=embed3)
   
   # Error handling
-  @commands.Cog.listener()
-  async def on_command_error(self, ctx, error):
-    # Send me a dm if needed
-    if isinstance(error, commands.CommandNotFound):
-      return
-    elif isinstance(error, commands.MissingRequiredArgument):
-      ctx.command.reset_cooldown(ctx)
-      await ctx.send(f'You are missing a required argument. Please use `{ctx.prefix}{ctx.command} {ctx.command.signature}`', delete_after=10)
-      return
-    elif isinstance(error, commands.MissingPermissions):
-      ctx.command.reset_cooldown(ctx)
-      await ctx.send(f'You are missing the required permissions to use this command.', delete_after=5)
-      return
-    elif isinstance(error, commands.CommandOnCooldown):
-      await ctx.message.add_reaction('⏱️')
-      return
-    elif isinstance(error, commands.CheckFailure):
-      ctx.command.reset_cooldown(ctx)
-      await ctx.send(f'You are missing the required permissions to use this command.', delete_after=5)
-      return
-    else:
-      ctx.command.reset_cooldown(ctx)
-      await ctx.send(f'An error has occured. If this continues to happen, please open a support ticket.', delete_after=5)
-      await self.logerrors(str(error), ctx)
-      return
+  if location == 1: # only on digital ocean
+    @commands.Cog.listener()
+    async def on_command_error(self, ctx, error):
+      # Send me a dm if needed ()
+      if isinstance(error, commands.CommandNotFound):
+        return
+      elif isinstance(error, commands.MissingRequiredArgument):
+        ctx.command.reset_cooldown(ctx)
+        await ctx.send(f'You are missing a required argument. Please use `{ctx.prefix}{ctx.command} {ctx.command.signature}`', delete_after=10)
+        return
+      elif isinstance(error, commands.MissingPermissions):
+        ctx.command.reset_cooldown(ctx)
+        await ctx.send(f'You are missing the required permissions to use this command.', delete_after=5)
+        return
+      elif isinstance(error, commands.CommandOnCooldown):
+        await ctx.message.add_reaction('⏱️')
+        return
+      elif isinstance(error, commands.CheckFailure):
+        ctx.command.reset_cooldown(ctx)
+        await ctx.send(f'You are missing the required permissions to use this command.', delete_after=5)
+        return
+      else:
+        ctx.command.reset_cooldown(ctx)
+        await ctx.send(f'An error has occured. If this continues to happen, please open a support ticket.', delete_after=5)
+        await self.logerrors(str(error), ctx)
+        return
 
   async def on_ready(self):
     if not self.persistent_views_added:

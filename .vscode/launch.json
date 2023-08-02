@@ -3,6 +3,8 @@
     "configurations": [
 
         {
+            "envFile": "${workspaceFolder}/.env",
+
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
