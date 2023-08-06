@@ -1,4 +1,4 @@
-import discord, os, sys, json, random, logging
+import discord, os, sys, json, random, logging, ast
 from discord.errors import Forbidden
 from discord.ext import commands
 #from replit import db
@@ -101,39 +101,41 @@ def checkScore(userid, guildid):
     return '0'
 
 def changeScore(userid, guildid, amount=1):
-  #curr.execute('INSERT INTO sparklescores (userid, guild, score) VALUES (%s, %s, %s)', (userid, guildid, amount))
-  #conn.commit()
-  scorefetched = None
-  curr.execute('SELECT * FROM sparklescores WHERE userid = %s AND guild = %s', (userid, guildid))
-  for row in curr:
-    scorefetched = row
-  if scorefetched == None:
-    curr.execute('INSERT INTO sparklescores (userid, guild, score) VALUES (%s, %s, %s)', (userid, guildid, amount))
-    print(f'User got {str(amount)} point(s). {userid}')
-    score = amount
-  elif scorefetched[3] + amount < 0:
-    print('Ignoring negitive score. User database has not been changed.')
-    score = scorefetched[3]
-  else:
-    score = amount + scorefetched[3]
-    curr.execute('UPDATE sparklescores SET score = %s WHERE userid = %s AND guild = %s ', (score, userid, guildid))
-    print(f'User got {str(amount)} point(s).  New score is {score}. {userid}')
-  conn.commit()
-  return score
+    # Fetch the current score for the user and guild
+    curr.execute('SELECT score FROM sparklescores WHERE userid = %s AND guild = %s', (userid, guildid))
+    row = curr.fetchone()
+
+    # Determine the new score based on the current score and amount
+    if row:
+        current_score = row[0]
+        # If the new score would be negative, keep the current score
+        if current_score + amount < 0:
+            print('Ignoring negative score. User database has not been changed.')
+            return current_score
+        # Otherwise, update the score
+        else:
+            new_score = current_score + amount
+            curr.execute('UPDATE sparklescores SET score = %s WHERE userid = %s AND guild = %s', (new_score, userid, guildid))
+            print(f'User got {amount} point(s). New score is {new_score}. {userid}')
+            conn.commit()
+            return new_score
+    # If the user doesn't exist, insert a new record with the given amount
+    else:
+        curr.execute('INSERT INTO sparklescores (userid, guild, score) VALUES (%s, %s, %s)', (userid, guildid, amount))
+        print(f'User got {amount} point(s). {userid}')
+        conn.commit()
+        return amount
 
 def removeGld(guildid):
   curr.execute('DELETE FROM sparklescores WHERE guild = %s', (guildid,))
   conn.commit()
 
 def guildScores(guildid):
-  print(type(guildid))
-  gscores = {}
-  curr.execute('SELECT * FROM sparklescores WHERE guild = %s ORDER BY score DESC', (guildid,))
-  for row in curr:
-    #print(row)
-    gscores[row[2]] = row[3]
-  #print(gscores)
-  return gscores 
+    gscores = {}
+    query = 'SELECT userid, score FROM sparklescores WHERE guild = %s ORDER BY score DESC'
+    curr.execute(query, (guildid,))
+    gscores = {row[0]: row[1] for row in curr.fetchall()}
+    return gscores
 
 '''def chatChannels():
   cha = open(chaFilename, "r")
@@ -317,79 +319,74 @@ class Flowers(commands.Cog):
 
     @commands.command(help='View the leaderboard', aliases=['lb'])
     @commands.check(notGeneral)
-    async def leaderboard(self, ctx):
+    async def leaderboard(self, ctx, guild_score=None):
       await ctx.channel.typing()
-      guildid = ctx.guild.id
-      lbid = guildScores(guildid)
-      #print(lbid)
-      lbid1 = list(lbid.keys())
-      if len(lbid1) > 9:
-        top10 = lbid1[:10]
+      
+      # If no guild_score provided, fetch the leaderboard data from the database
+      if guild_score is None:
+          guild_id = ctx.guild.id
+          leaderboard_data = guildScores(guild_id)
       else:
-        top10 = lbid1[:len(lbid1)]
-      #print(top10)
-      Temoji = self.bot.get_emoji(getEmote(ctx.guild.id))  
-      def CreateLb(current10, cPos): #current10 is the dict set of current id+score, cPos is the position of those ids
-        cembed = discord.Embed(color=Color.green(), title=f'{ctx.guild.name} {Temoji} Leaderboard:')
-        cembed.set_footer(text=f'Requested by: {ctx.author.name}#{ctx.author.discriminator}')
-        #print(current10)
-        for uid in current10:
-          #print(uid)
-          cPos+=1
-          uscore = lbid[uid]
-          umember = ctx.guild.get_member(int(uid))
-          #print(umember)
-          if not umember == None: 
-            names = f'{cPos}: {umember.name}'
-            uscore = f'  {Temoji} `{uscore}`'
-          else:
-            names = f'{cPos}: Missing User'
-            uscore = f'  {Temoji} `{uscore}` <@{uid}>'
-          cembed.add_field(name=names, value=uscore, inline=False)
-        return cembed
-      currentpos = 1
-      #send the first message
-      messagel = await ctx.send(embed=CreateLb(top10, 0))
-      #await ctx.message.delete()
-      def check(reaction, user):
-        return str(reaction.emoji) == "▶️" or str(reaction.emoji) == "◀️" and user.id == ctx.author.id and reaction.message.id == messagel.id
+          # Parsing the string into a dictionary
+          try:
+            given_leaderboard_data = ast.literal_eval(guild_score)
+          except ValueError:
+            await ctx.send('Invalid leaderboard data provided.')
+            return
+          guild_id = ctx.guild.id
+          current_leaderboard_data = guildScores(guild_id)
+
+          # Compute the differences between the given scores and current scores
+          leaderboard_data = {user_id: current_leaderboard_data.get(user_id, 0) - given_score
+                              for user_id, given_score in given_leaderboard_data.items()
+                              if given_score != current_leaderboard_data.get(user_id, 0)}
+          await ctx.send('This leaderboard is a temporary event leaderboard. Please use the command without any arguments to get the current leaderboard.')
+
+      leaderboard_keys = list(leaderboard_data.keys())
+      T_emoji = self.bot.get_emoji(getEmote(ctx.guild.id))
+
+      # Function to create leaderboard embed
+      def create_leaderboard_embed(current_keys, start_pos):
+          embed = discord.Embed(color=Color.green(), title=f'{ctx.guild.name} {T_emoji} Scores:')
+          embed.set_footer(text=f'Requested by: {ctx.author.name}#{ctx.author.discriminator}')
+          
+          for pos, user_id in enumerate(current_keys, start=start_pos + 1):
+              score_diff = leaderboard_data[user_id]
+              user_member = ctx.guild.get_member(int(user_id))
+              name_field = f'{pos}: {user_member.name}' if user_member else f'{pos}: Missing User'
+              score_field = f'  {T_emoji} `{score_diff}`' if user_member else f'  {T_emoji} `{score_diff}` <@{user_id}>'
+              embed.add_field(name=name_field, value=score_field, inline=False)
+          
+          return embed
+
+      current_pos = 0
+      message = await ctx.send(embed=create_leaderboard_embed(leaderboard_keys[:10], current_pos))
+
+      def check_reaction(reaction, user):
+          return str(reaction.emoji) in ["▶️", "◀️"] and user.id == ctx.author.id and reaction.message.id == message.id
+
       while True:
-        try:
-          await messagel.add_reaction("◀️")
-          await messagel.add_reaction("▶️")
-          reaction, user = await self.bot.wait_for('reaction_add', timeout=120.0, check=check)
-        except Exception:
-          break
-        if str(reaction.emoji) == "◀️" and user.id == ctx.author.id:
-          #move back
-          await messagel.remove_reaction("◀️",user)
-          #check if maxed out
-          if currentpos <= 1:
-            pass
-          else:
-            currentpos-=1 
-            #deal with short leaderboards
-            if len(lbid) > (currentpos*10):
-              current10 = lbid1[(currentpos*10-9):]
-            #deal with 10 leaderboards
-            if len(lbid) > (currentpos*10):
-              current10 = lbid1[(currentpos*10-10):(currentpos*10)]
-            await messagel.edit(embed=CreateLb(current10, ((currentpos*10)-10)))
-        if str(reaction.emoji) == "▶️" and user.id == ctx.author.id:
-          #move forward
-          await messagel.remove_reaction("▶️",user)
-          #check if maxed out
-          if len(lbid) <= (currentpos*10):
-            pass
-          else:
-            currentpos+=1 
-            #deal with short leaderboards
-            if len(lbid) > (currentpos*10):
-              current10 = lbid1[(currentpos*10-10):]
-            #deal with 10 leaderboards
-            if len(lbid) > (currentpos*10):
-              current10 = lbid1[(currentpos*10-10):(currentpos*10)]
-            await messagel.edit(embed=CreateLb(current10, ((currentpos*10)-10)))
+          try:
+              await message.add_reaction("◀️")
+              await message.add_reaction("▶️")
+              reaction, user = await self.bot.wait_for('reaction_add', timeout=120.0, check=check_reaction)
+          except Exception:
+              break
+
+          await message.remove_reaction(reaction.emoji, user)  # remove the reaction
+
+          # Update the leaderboard position based on reaction
+          if str(reaction.emoji) == "◀️":
+              current_pos = max(current_pos - 10, 0)
+          # Only allow moving forward if there are more users beyond the current view
+          elif str(reaction.emoji) == "▶️" and current_pos + 10 < len(leaderboard_keys):
+              current_pos = min(current_pos + 10, len(leaderboard_keys) - 10)
+
+          # Create a new embed with the updated leaderboard view
+          current_keys = leaderboard_keys[current_pos:current_pos + 10]
+          await message.edit(embed=create_leaderboard_embed(current_keys, current_pos))
+
+    
 
     @commands.group(help='Admin commands for the bot', aliases=['ea'])
     @commands.has_permissions(administrator=True)
@@ -434,7 +431,7 @@ class Flowers(commands.Cog):
         await ctx.reply('That channel was not found')
 
 
-    @eAdmin.command(help='Start spawning in a channel. Admin only', aliases=['channeladd'])
+    @eAdmin.command(help='Start spawning in a channel. Admin only', aliases=['channeladd, chaadd'])
     @commands.has_guild_permissions(administrator=True)
     async def chaAdd(self, ctx, cha:discord.TextChannel, minScore=5, maxScore=10):
       Temoji = self.bot.get_emoji(getEmote(ctx.guild.id))
@@ -540,3 +537,81 @@ class Flowers(commands.Cog):
     
 async def setup(bot):
   await bot.add_cog(Flowers(bot))
+
+
+# old leaderboard code
+# @commands.command(help='View the leaderboard', aliases=['lb'])
+#     @commands.check(notGeneral)
+#     async def leaderboard(self, ctx):
+#       await ctx.channel.typing()
+#       guildid = ctx.guild.id
+#       lbid = guildScores(guildid)
+#       #print(lbid)
+#       lbid1 = list(lbid.keys())
+#       if len(lbid1) > 9:
+#         top10 = lbid1[:10]
+#       else:
+#         top10 = lbid1[:len(lbid1)]
+#       #print(top10)
+#       Temoji = self.bot.get_emoji(getEmote(ctx.guild.id))  
+#       def CreateLb(current10, cPos): #current10 is the dict set of current id+score, cPos is the position of those ids
+#         cembed = discord.Embed(color=Color.green(), title=f'{ctx.guild.name} {Temoji} Leaderboard:')
+#         cembed.set_footer(text=f'Requested by: {ctx.author.name}#{ctx.author.discriminator}')
+#         #print(current10)
+#         for uid in current10:
+#           #print(uid)
+#           cPos+=1
+#           uscore = lbid[uid]
+#           umember = ctx.guild.get_member(int(uid))
+#           #print(umember)
+#           if not umember == None: 
+#             names = f'{cPos}: {umember.name}'
+#             uscore = f'  {Temoji} `{uscore}`'
+#           else:
+#             names = f'{cPos}: Missing User'
+#             uscore = f'  {Temoji} `{uscore}` <@{uid}>'
+#           cembed.add_field(name=names, value=uscore, inline=False)
+#         return cembed
+#       currentpos = 1
+#       #send the first message
+#       messagel = await ctx.send(embed=CreateLb(top10, 0))
+#       #await ctx.message.delete()
+#       def check(reaction, user):
+#         return str(reaction.emoji) == "▶️" or str(reaction.emoji) == "◀️" and user.id == ctx.author.id and reaction.message.id == messagel.id
+#       while True:
+#         try:
+#           await messagel.add_reaction("◀️")
+#           await messagel.add_reaction("▶️")
+#           reaction, user = await self.bot.wait_for('reaction_add', timeout=120.0, check=check)
+#         except Exception:
+#           break
+#         if str(reaction.emoji) == "◀️" and user.id == ctx.author.id:
+#           #move back
+#           await messagel.remove_reaction("◀️",user)
+#           #check if maxed out
+#           if currentpos <= 1:
+#             pass
+#           else:
+#             currentpos-=1 
+#             #deal with short leaderboards
+#             if len(lbid) > (currentpos*10):
+#               current10 = lbid1[(currentpos*10-9):]
+#             #deal with 10 leaderboards
+#             if len(lbid) > (currentpos*10):
+#               current10 = lbid1[(currentpos*10-10):(currentpos*10)]
+#             await messagel.edit(embed=CreateLb(current10, ((currentpos*10)-10)))
+#         if str(reaction.emoji) == "▶️" and user.id == ctx.author.id:
+#           #move forward
+#           await messagel.remove_reaction("▶️",user)
+#           #check if maxed out
+#           if len(lbid) <= (currentpos*10):
+#             pass
+#           else:
+#             currentpos+=1 
+#             #deal with short leaderboards
+#             if len(lbid) > (currentpos*10):
+#               current10 = lbid1[(currentpos*10-10):]
+#             #deal with 10 leaderboards
+#             if len(lbid) > (currentpos*10):
+#               current10 = lbid1[(currentpos*10-10):(currentpos*10)]
+#             await messagel.edit(embed=CreateLb(current10, ((currentpos*10)-10)))
