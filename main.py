@@ -3,7 +3,7 @@ import discord, os, sys
 #from replit import db
 #import sqlite3
 from helpers.client import MyClient
-from helpers.help import MyHelp
+from helpers.helpcmd import MyHelp
 from init import location
 
 if location == 0:
