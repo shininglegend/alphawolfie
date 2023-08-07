@@ -123,7 +123,11 @@ class MyClient(commands.Bot):
         emote = emojireacts[trigs]
         if not message.channel.id in [876586125987295283, 876586168953737246]:
           if location == 1: 
-            await message.add_reaction(emote) #disable
+            try:
+              await message.add_reaction(emote) #disable
+            except discord.errors.UnknownEmoji:
+              print('Unknown Emoji: '+emote)
+              await self.logEvent('Unknown Emoji: '+emote)
           i = 0
 
     if msg.startswith(';'):
