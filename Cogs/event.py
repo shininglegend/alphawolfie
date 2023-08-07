@@ -335,11 +335,17 @@ class Flowers(commands.Cog):
             return
           guild_id = ctx.guild.id
           current_leaderboard_data = guildScores(guild_id)
+          leaderboard_keys.sort(key=lambda user_id: leaderboard_data[user_id], reverse=True)
 
           # Compute the differences between the given scores and current scores
           leaderboard_data = {user_id: current_leaderboard_data.get(user_id, 0) - given_score
                               for user_id, given_score in given_leaderboard_data.items()
                               if given_score != current_leaderboard_data.get(user_id, 0)}
+          
+          # Sort leaderboard_keys by the new scores in descending order
+          leaderboard_keys = list(leaderboard_data.keys())
+          leaderboard_keys.sort(key=lambda user_id: leaderboard_data[user_id], reverse=True)
+          
           await ctx.send('This leaderboard is a temporary event leaderboard. Please use the command without any arguments to get the current leaderboard.')
 
       leaderboard_keys = list(leaderboard_data.keys())
