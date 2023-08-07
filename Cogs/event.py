@@ -326,6 +326,7 @@ class Flowers(commands.Cog):
       if guild_score is None:
           guild_id = ctx.guild.id
           leaderboard_data = guildScores(guild_id)
+          leaderboard_keys = list(leaderboard_data.keys())
       else:
           # Parsing the string into a dictionary
           try:
@@ -335,7 +336,6 @@ class Flowers(commands.Cog):
             return
           guild_id = ctx.guild.id
           current_leaderboard_data = guildScores(guild_id)
-          leaderboard_keys.sort(key=lambda user_id: leaderboard_data[user_id], reverse=True)
 
           # Compute the differences between the given scores and current scores
           leaderboard_data = {user_id: current_leaderboard_data.get(user_id, 0) - given_score
@@ -345,10 +345,9 @@ class Flowers(commands.Cog):
           # Sort leaderboard_keys by the new scores in descending order
           leaderboard_keys = list(leaderboard_data.keys())
           leaderboard_keys.sort(key=lambda user_id: leaderboard_data[user_id], reverse=True)
-          
+
           await ctx.send('This leaderboard is a temporary event leaderboard. Please use the command without any arguments to get the current leaderboard.')
 
-      leaderboard_keys = list(leaderboard_data.keys())
       T_emoji = self.bot.get_emoji(getEmote(ctx.guild.id))
 
       # Function to create leaderboard embed

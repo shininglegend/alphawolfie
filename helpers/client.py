@@ -125,7 +125,7 @@ class MyClient(commands.Bot):
           if location == 1: 
             try:
               await message.add_reaction(emote) #disable
-            except discord.errors.UnknownEmoji:
+            except discord.errors.HTTPException:
               print('Unknown Emoji: '+emote)
               await self.logEvent('Unknown Emoji: '+emote)
           i = 0
