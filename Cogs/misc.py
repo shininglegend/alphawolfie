@@ -4,7 +4,7 @@ from discord.ext import commands
 from discord import Embed, Color
 import psycopg2 as pgsql
 
-from init import conn, curr
+from init import conn, curr, location
 
 MEDIA_CHANNEL_IDS = [835164179001901099, 911020430368866314]
 # These roles bypass the media check
@@ -112,6 +112,9 @@ class Misc(commands.Cog):
     # Joining server stuff
     @commands.Cog.listener()
     async def on_member_join(self, member):
+      if location == 0:
+        print(f'{member.name} joined the server. Skipping welcome messages.')
+        return
       # Send them an intro message and talk about verification
       memberdm = await member.create_dm()
       await memberdm.send(f"""Hey there, <@{member.id}>! 
