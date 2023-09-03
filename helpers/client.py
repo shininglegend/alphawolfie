@@ -20,7 +20,7 @@ class MyClient(commands.Bot):
     print("Loaded Cogs and Synced Slash Commands")
 
   async def logEvent(self, message, title=None):
-    cha = self.client.get_channel(777042897630789633)
+    cha = self.get_channel(777042897630789633)
     if not title:
       title="Logged Event:"
     embed3 = Embed(title=title, description=message, color=Color.green(), timestamp=datetime.datetime)
@@ -115,6 +115,7 @@ class MyClient(commands.Bot):
       if trigs in mentions:
         print('found mention: '+trigs)
         emote = emojireacts[trigs]
+        print(emote)
         if not message.channel.id in [876586125987295283, 876586168953737246]:
           if location == 1: 
             await message.add_reaction(emote) #disable
