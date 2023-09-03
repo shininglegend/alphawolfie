@@ -1,4 +1,4 @@
-import discord, os, sys, json, random, logging, requests, datetime
+import discord, os, sys, json, random, logging, requests, datetime, asyncio
 from discord.ext import commands
 #from replit import db
 from discord import Embed, Color
@@ -17,6 +17,15 @@ def get_quote():
   quote = json_data[0]['q'] + """ 
   *""" + json_data[0]['a'] + "*"
   return(quote)
+
+
+def randomtopic():
+  l = []
+  with open('randomtopics.txt') as f:
+    for line in f: 
+      l.append(line)
+  return random.choice(l)
+
 
 class Misc(commands.Cog):
 
@@ -98,6 +107,39 @@ class Misc(commands.Cog):
           if after.channel != None and before.channel == None:
             await member.add_roles(role1, reason='Joined the VC.')
             #await self.log0101(f'<@{member.id}> : {before.channel}>{after.channel}, added VC role')
+
+    
+    # Joining server stuff
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+      # Send them an intro message and talk about verification
+      memberdm = await member.create_dm()
+      await memberdm.send(f"""Hey there, <@{member.id}>! 
+## Welcome to the official Ninja.io Discord.
+We look forward to welcoming you soon! To prevent alt accounts from joining, we require you to verify your email and wait 10 minutes before you can chat in the server.
+*If you need help verifying your email, please follow this guide: https://support.discordapp.com/hc/en-us/articles/213219267-Resending-Verification-Email*
+You may also be dmed by <@372022813839851520> to verify your account. If you get that dm and fail to verify, you will be kicked.
+I'll be back in **10 minutes** to let you know that the timer has ended! In the meantime, you can check out the following channels:
+    <#670362003356778498> - See the latest announcements from the Ninja.io developer
+    <#670361959345946657> - Read the Rules!!!
+    <#750176588418646096> or <#834228209305387038> - See some amazing art made by the community!
+If you get kicked or just leave and ever want to rejoin us, you may use this link: https://discord.gg/yAYmSWZ \n--""")
+      # Wait 10 minutes
+      await asyncio.sleep(630) # Set to 30 seconds for testing. 10 minutes is 600 seconds
+      # Check if they are still in the server
+      if member in member.guild.members:
+        # DM them that their timeout has ended
+        await member.send('## Yay! You can now chat in the Ninja.io server!\nPlease join us by saying hi in <#670362292659159040>. You will also be pinged there shortly!')
+        # Wait 10 seconds
+        await asyncio.sleep(10)
+        # Ping them in general chat
+        channel = member.guild.get_channel(670362292659159040)
+        await channel.send(f'Welcome, <@{member.id}> as the {member.guild.member_count}th user!')
+        await channel.send(f'~{randomtopic()}') 
+      # If they left the server, just print to console
+      else:
+        print(f'{member.name} left before verification ended.')
+
             
 
 
