@@ -10,9 +10,68 @@ from init import conn, curr, is_it_me, location
 
 
 # This defines the emoji to use. I should really have this in a database, but I'm too lazy to do that right now. :P
-emoji = 1136217458483667025
+emoji = 1180455748673740831
+emojiName = 'snowballs'
 #cur = con.cursor()
 #print('I updated')
+userid = None
+response_after = ['**USER, like a swift winter breeze, gracefully seizes the EMOJI in mid-flight.**',
+    '**As silent as falling snow, USER ensnares the EMOJI with expert precision.**',
+    '**With the agility of a snow fox, USER outwits the EMOJI, capturing it deftly.**',
+    '**Like a samurai\'s blade in moonlight, USER swiftly intercepts the EMOJI.**',
+    '**USER, embodying the spirit of winter, masterfully catches the EMOJI.**',
+    '**In a dance as elegant as snowflakes, USER elegantly clasps the EMOJI.**',
+    '**With the patience of a frozen lake, USER waits before snatching the EMOJI.**',
+    '**USER, with the stealth of a shadow on snow, captures the EMOJI unawares.**',
+    '**Like a crane amidst a snowy meadow, USER gracefully snatches the EMOJI.**',
+    '**With movements as fluid as a winter stream, USER secures the EMOJI.**',
+    '**USER, reflecting the stillness of a winter night, calmly catches the EMOJI.**',
+    '**As if guided by the stars, USER\'s hand finds the EMOJI in the cold air.**',
+    '**With a touch as gentle as snowfall, USER claims the EMOJI.**',
+    '**USER, mimicking the quiet of a snow-covered forest, stealthily catches the EMOJI.**',
+    '**Like a mountain standing firm against the winter wind, USER grasps the EMOJI.**',
+    '**USER, channeling the endurance of winter, triumphantly captures the EMOJI.**',
+    '**In a moment as fleeting as a snowflake\'s touch, USER seizes the EMOJI.**',
+    '**With the wisdom of winter nights, USER skillfully intercepts the EMOJI.**',
+    '**USER, as if part of a winter\'s tale, heroically catches the EMOJI.**',
+    '**Like a haiku, simple yet profound, USER captures the essence of the EMOJI.**',
+    '**USER, with the harmony of a snow-laden branch, gently catches the EMOJI.**',
+    '**In an echo of ancient winter legends, USER adeptly secures the EMOJI.**',
+    '**USER, as timeless as winter\'s embrace, effortlessly ensnares the EMOJI.**',
+    '**With the serenity of a snow-globe scene, USER gracefully catches the EMOJI.**',
+    '**USER, evoking the mystery of a snowy twilight, masterfully captures the EMOJI.**'
+  ]
+
+response_before = [
+    '**The EMOJI, a frosty orb, glistens like a crystal under the morning sun.**',
+    '**Amidst the winter silence, the EMOJI sits, a lone sentinel in the snow.**',
+    '**Like a pearl in the sea of white, the EMOJI catches the faint light of dawn.**',
+    '**The EMOJI, dusted with frost, holds the whispers of the winter wind.**',
+    '**In the pale moonlight, the EMOJI shimmers with an ethereal glow.**',
+    '**The EMOJI, carved by the chill, stands as a monument to fleeting moments.**',
+    '**As if kissed by winter fairies, the EMOJI sparkles with a delicate frost.**',
+    '**The EMOJI, nestled in the embrace of winter, wears a cloak of powdered snow.**',
+    '**Like a forgotten dream, the EMOJI rests, ethereal and untouched in the morning light.**',
+    '**The EMOJI, a solitary figure, mirrors the solemnity of the winter\'s sky.**',
+    '**Beneath the twilight stars, the EMOJI glows softly, a beacon of night\'s magic.**',
+    '**The EMOJI, veiled in mist, stands as a guardian of winter\'s secrets.**',
+    '**In the hush of the snowy forest, the EMOJI remains a silent observer.**',
+    '**The EMOJI, a testament to winter\'s craft, lies sculpted by the playful wind.**',
+    '**Like a droplet from a winter cloud, the EMOJI sits, pure and simple.**',
+    '**The EMOJI, a frozen echo, resonates with the stillness of the winter valley.**',
+    '**Amidst the dance of falling snowflakes, the EMOJI stands, proud and serene.**',
+    '**The EMOJI, like a whispered riddle, holds the mysteries of the frost.**',
+    '**In the embrace of the cold, the EMOJI gleams, a relic of winter\'s grace.**',
+    '**The EMOJI, a solitary jewel, reflects the solemn beauty of the winter night.**',
+    '**As the world sleeps under the winter sky, the EMOJI dreams in the snow.**',
+    '**The EMOJI, touched by the dawn, wears a crown of sunlit ice.**',
+    '**In the quiet of the snowy meadow, the EMOJI is a testament to winter\'s art.**',
+    '**The EMOJI, like a brushstroke on a white canvas, lies in perfect harmony.**',
+    '**As if part of an ancient winter fable, the EMOJI rests, timeless and profound.**'
+]
+
+
+
 
 #curr.execute("CREATE TABLE IF NOT EXISTS sparklescores(id INTEGER PRIMARY KEY AUTOINCREMENT, guild INTEGER, userid INTEGER, score INTEGER DEFAULT 0)")
 #curr.execute("CREATE TABLE IF NOT EXISTS sparklesettings(id INTEGER PRIMARY KEY AUTOINCREMENT, guild INTEGER, emoji INTEGER)")
@@ -153,7 +212,7 @@ def validMsg(message):
 
 
 
-class Flowers(commands.Cog):
+class Event(commands.Cog):
     def __init__(self, bot):
       self.bot = bot
       self.description = 'Spawn cool stuff!'
@@ -173,7 +232,7 @@ class Flowers(commands.Cog):
     #events
     @commands.Cog.listener()
     async def on_ready(self):
-      print('Snowball is online')
+      print('Events is online')
     
 
     @commands.Cog.listener()
@@ -195,37 +254,15 @@ class Flowers(commands.Cog):
             self.Twait[mesCha] = True 
             print('Target Triggered')
             Temoji = self.bot.get_emoji(getEmote(message.guild.id)) 
-            responses = [f'**The snow gathers... And a {Temoji} appears!**',
-              f'**{Temoji}. No more needs to be said.**',
-              f'**Discord drops off a {Temoji}!**',
-              f'**Hiii! \nDid you know about the {Temoji}?**',
-              f'**You are gifted one {Temoji}. Claim it quick!**',
-              f'**Ara Ara! This {Temoji} probaly has bad luck now.**',
-              f'**As the sun sets, the glow of a {Temoji} illuminates the darkness!**',
-              f'**Behold, a wild {Temoji} has appeared! Handle with care...**',
-              f'**A chill wind carries with it a new arrival, the {Temoji}!**',
-              f'**Out from the shadows slithers a {Temoji}. What\s this?**',
-              f'**Lucky day! A sparkling {Temoji} is yours for the taking!**',
-              f'**An ominous mist lifts, revealing a solitary {Temoji}...**',
-              f'**It\'s your lucky day, a cheerful {Temoji} appears!**',
-              f'**Be careful! A prickly {Temoji} has sprouted.**',
-              f'**Hey there! Have you heard about the intriguing {Temoji}?**',
-              f'**With a soft rustle, a mischievous {Temoji} makes its presence known!**',
-              f'**The skies darken... as a formidable {Temoji} takes root!**',
-              f'**Good fortunes ahead! A majestic {Temoji} has bloomed.**',
-              f'**Oh, no! A troublesome {Temoji} is here.**',
-              f'**What\'s this? A dazzling {Temoji} just for you!**',
-              f'**Watch out! The thorny {Temoji} is on the loose.**',
-              f'**Pssst! A mysterious {Temoji} has been spotted.**',
-              f'**Congrats! A blooming {Temoji} just fell into your lap.**',
-              f'**A sinister {Temoji} has shown its face... proceed with caution.**',
-              f'**Cheer up! A bright {Temoji} has just arrived to brighten your day!**',
-              f'**Be wary! A potentially dangerous {Temoji} has sprouted nearby.**']
-            Tmessage = await message.channel.send(random.choice(responses))
-            antiautoclicker = random.randint(1, 5)
-            if antiautoclicker == 1:
-              await message.channel.send(f'Bonus message to mess up you autoclickers!\nGo do something else for a bit.\nYou\'re too obbsessed with {Temoji}!', delete_after=3)
-            elif antiautoclicker == 2:
+            # Format the response
+            response_msg = random.choice(response_before).replace("EMOJI", str(Temoji))
+            Tmessage = await message.channel.send(response_msg)
+            # Process after the message is sent
+            antiautoclicker = random.randint(1, 10)
+            if antiautoclicker <= 1:
+              extramsg = await message.channel.send(f'Bonus message to mess up you autoclickers!\nGo do something else for a bit.\nYou\'re too obbsessed with {Temoji}!', delete_after=3)
+              await extramsg.add_reaction(Temoji)
+            elif antiautoclicker <= 3:
               await Tmessage.add_reaction('👀')
             def check(reaction, user):
               return str(reaction.emoji) == str(Temoji) and reaction.message == Tmessage
@@ -254,39 +291,20 @@ class Flowers(commands.Cog):
                 if i in [10, 20, 21]:
                   print('lost a point')
                   changeScore(user.id, guildid, -1)
-                  await Tmessage.edit(content=f'**{Temoji} wilted due to <@{user.id}>\'s black thumb and they lost a point!**', delete_after=7)
+                  await Tmessage.edit(content=f'**{Temoji} melted due to <@{user.id}> being bad instead of good this year!**', delete_after=7)
                 elif i in [5, 45, 46]:
                   print('double points')
                   changeScore(user.id, guildid, 2)
-                  await Tmessage.edit(content=f'**<@{user.id}> appeared in a mysterious glade. Peering down, <@{user.id}> found a perfect {Temoji} and gained 2 points!**', delete_after=7)
+                  await Tmessage.edit(content=f'**<@{user.id}> is Santa\'s favorite, and got a perfect {Temoji} gaining 2 points!**', delete_after=7)
                 elif i in [25, 30, 35, 40, 41, 42, 43]:
                   print('nothing')
-                  await Tmessage.edit(content=f'**<@{user.id}>\'s {Temoji} wasn\'t watered enough. They gain no points**', delete_after=7)
+                  await Tmessage.edit(content=f'**<@{user.id}>\'s {Temoji} was an illusion. They gain no points**', delete_after=7)
                 else:
                   print('normal')
                   changeScore(user.id, guildid)
-                  responses = [f'**<@{user.id}> springs into action, successfully capturing the elusive {Temoji}!**',
-                    f'**A wild {Temoji} appears in the meadow! Swiftly, <@{user.id}> swoops in for the catch!**',
-                    f'**<@{user.id}> treads softly and strikes quickly, bagging a beautiful {Temoji}!**',
-                    f'**In a flurry of petals, <@{user.id}> lunges forward, snatching up the startled {Temoji}!**',
-                    f'**<@{user.id}> bobs and weaves through a thicket, emerging with the coveted {Temoji}!**',
-                    f'**Like a scene from an adventure novel, <@{user.id}> bravely uncovers a hidden {Temoji}!**',
-                    f'**<@{user.id}> leaps over the log, diving headfirst to claim the radiant {Temoji}!**',
-                    f'**With a spectacular display of agility, <@{user.id}> secures the wild {Temoji}!**',
-                    f'**A rare {Temoji} reveals itself! In a flash, <@{user.id}> captures the prize!**',
-                    f'**<@{user.id}> plunges into the thorny underbrush, emerging triumphantly with the {Temoji}!**',
-                    f'**<@{user.id}> sidesteps a babbling brook, deftly plucking the startled {Temoji}!**',
-                    f'**With lightning speed, <@{user.id}> seizes the unsuspecting {Temoji}!**',
-                    f'**Spotting a beautiful {Temoji}, <@{user.id}> ventures off the beaten path to claim it!**',
-                    f'**With a whoop of joy, <@{user.id}> clambers up the hillside to claim the resplendent {Temoji}!**',
-                    f'**Through a veil of morning mist, <@{user.id}> discerns and captures a wild {Temoji}!**',
-                    f'**In the shimmering moonlight, <@{user.id}> stealthily captures the sleeping {Temoji}!**',
-                    f'**<@{user.id}> defies the rushing river, courageously rescuing the stranded {Temoji}!**',
-                    f'**<@{user.id}> tiptoes through the tulips, skillfully apprehending a hidden {Temoji}!**',
-                    f'**In a blink-and-you\'ll-miss-it moment, <@{user.id}> swoops in, capturing the fluttering {Temoji}!**',
-                    f'**Venturing into the mystic grove, <@{user.id}> uncovers and claims a radiant {Temoji}!**',
-                    f'**<@{user.id}> uses the power of sunlight and claims the {Temoji}!**']
-                  await Tmessage.edit(content=random.choice(responses), delete_after=7)
+                  response_msg = random.choice(response_after).replace("EMOJI", str(Temoji))
+                  response_msg = response_msg.replace("USER", f'<@{user.id}>')
+                  await Tmessage.edit(content=response_msg, delete_after=7)
                 #Tmessage = Nones
                 self.chatA[mesCha] = 0
                 cha = getChannel(mesCha, message.guild.id)
@@ -297,8 +315,7 @@ class Flowers(commands.Cog):
                 break
               
 
-    
-    @commands.hybrid_command(help='Check your score', aliases=['bal', 'flowers'])
+    @commands.hybrid_command(help='Check your score', aliases=['bal', emojiName])
     @commands.check(notGeneral)
     async def balance(self, ctx, user:discord.Member=None):
       await ctx.defer()
@@ -311,10 +328,11 @@ class Flowers(commands.Cog):
       embed = Embed(color=Color.green(), title=msg)
       await ctx.send(embed=embed)
 
-    @app_commands.command(description='Spawn a flower on demand')
+
+    @app_commands.command(description=f'Spawn a {emojiName} on demand.')
     async def spawn(self, interaction: discord.Interaction) -> None:
       await interaction.response.send_message("No. Why would I possibly let you cheat?!", ephemeral=True)
-      await interaction.guild.get_channel(903139993646682113).send(f'<@{interaction.user.id}> tried to spawn a flower on demand! Bored?')
+      await interaction.guild.get_channel(903139993646682113).send(f'<@{interaction.user.id}> tried to spawn a {emojiName} on demand! Bored?')
 
 
     @commands.command(help='View the leaderboard', aliases=['lb'])
@@ -350,6 +368,7 @@ class Flowers(commands.Cog):
 
       T_emoji = self.bot.get_emoji(getEmote(ctx.guild.id))
 
+
       # Function to create leaderboard embed
       def create_leaderboard_embed(current_keys, start_pos):
           embed = discord.Embed(color=Color.green(), title=f'{ctx.guild.name} {T_emoji} Scores:')
@@ -363,7 +382,6 @@ class Flowers(commands.Cog):
               embed.add_field(name=name_field, value=score_field, inline=False)
           
           return embed
-
       current_pos = 0
       message = await ctx.send(embed=create_leaderboard_embed(leaderboard_keys[:10], current_pos))
 
@@ -533,7 +551,8 @@ class Flowers(commands.Cog):
     @commands.check(is_it_me)
     async def check(self, ctx):
       embed = discord.Embed(color=Color.green(), title='Current variable status')
-      embed.add_field(name='Waiting for a sparkle to be claimed:', value=self.Twait)
+      embed.add_field(name='Current Emoji:', value=self.bot.get_emoji(emoji))
+      embed.add_field(name='Waiting for a emoji to be claimed:', value=self.Twait)
       embed.add_field(name='Messages counted:', value=self.chatA)
       embed.add_field(name='Target messages before spawn:', value=self.chatTar)
       await ctx.send(embed=embed)
@@ -541,7 +560,7 @@ class Flowers(commands.Cog):
 
     
 async def setup(bot):
-  await bot.add_cog(Flowers(bot))
+  await bot.add_cog(Event(bot))
 
 
 # old leaderboard code

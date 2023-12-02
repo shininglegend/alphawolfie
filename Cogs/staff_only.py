@@ -80,7 +80,7 @@ class StaffOnly(commands.Cog):
             l = m
             m = ''
         if l != '':
-          await ctx.send(f'{l}')
+          await ctx.send(f'{l}', allowed_mentions=discord.AllowedMentions.none())
         await ctx.send(f'{m}')
           
 

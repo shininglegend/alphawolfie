@@ -66,15 +66,18 @@ class Misc(commands.Cog):
         await self.log0101(message=f'<@{message.author.id}> in <#{message.channel.id}> : {message.content}', title='Deleted message')   
         #print('Deleted message')
 
-        # This adds reactions in the maps channel
-        if message.attachments and message.channel.id == 911020430368866314:
-          # add reactions based on if we have custom emojis or not
-          try:
-            await message.add_reaction("<:upvote:904548817783894026>")
-            await message.add_reaction("<:downvote:904548736884150292>")
-          except discord.errors.HTTPException:
-            await message.add_reaction("👍")
-            await message.add_reaction("👎")
+      # This adds reactions in the maps channel
+      if message.attachments and message.channel.id == 911020430368866314:
+        # create a thread
+        await message.create_thread(name=f'{message.author.name}\'s map', auto_archive_duration=1440)
+        # add reactions based on if we have custom emojis or not
+        try:
+          await message.add_reaction("<:upvote:904548817783894026>")
+          await message.add_reaction("<:downvote:904548736884150292>")
+        except discord.errors.HTTPException:
+          await message.clear_reactions()
+          await message.add_reaction("👍")
+          await message.add_reaction("👎")
 
     @commands.Cog.listener()
     async def on_message_edit(self, msgbefore, message):
@@ -143,8 +146,6 @@ If you get kicked or just leave and ever want to rejoin us, you may use this lin
       else:
         print(f'{member.name} left before verification ended.')
 
-            
-
 
     #commands
     @commands.command(aliases=['ins', 'inspireme'], help='Inspires!')
@@ -180,6 +181,7 @@ If you get kicked or just leave and ever want to rejoin us, you may use this lin
     async def gwping_error(self, ctx, error):
       await ctx.send(f'Error: {error}', delete_after=15)
 
+
     @commands.command(help='Get a list of roles from the server', aliases=['rl'])
     @commands.cooldown(3, 30, commands.BucketType.channel)
     async def role_list(self, ctx):
@@ -200,6 +202,7 @@ If you get kicked or just leave and ever want to rejoin us, you may use this lin
         embed2 = Embed(color = Color.green(), description=message2)
         await ctx.send(embed=embed2)
     
+
     @commands.command(help='Add your own autoreaction when you are pinged.')
     @commands.has_any_role(845734135922163762, 470547452873932806, 670427731468746783)
     async def claim(self, ctx, emoji):
