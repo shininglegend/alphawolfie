@@ -2,6 +2,7 @@ import discord, os, sys
 #from keep_alive import keep_alive
 #from replit import db
 #import sqlite3
+from dotenv import load_dotenv
 from helpers.client import MyClient
 from helpers.helpcmd import MyHelp
 from init import location
@@ -16,6 +17,7 @@ client = MyClient(command_prefix=myprefix,intents = discord.Intents.all(), case_
 client.help_command = MyHelp(client=client) # set our help command to our custom one
 
 if location == 0:
+  load_dotenv()
   client.run(os.environ.get("DISCORD_TOKEN"))
 
 else:

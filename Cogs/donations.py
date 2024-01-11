@@ -240,85 +240,66 @@ class Donations(commands.Cog):
         setcache(cnum, amount)
         await ctx.send(f'CacheNinja{cnum} successfully set to {amount}.')
 
-    #post monthly leaderboard.
-    @commands.command(help='View the leaderboard, args are <month> or <total>', aliases=['dlb','donationslb'])
-    async def d_lb(self, ctx, type='month'):
-      if type not in ('month', 'total'):
-          await ctx.send('That\'s not a valid type.')
-          return
-      await ctx.channel.typing()
-      if type == 'month': type = 'Monthly'
-      elif type == 'total': type = 'Total'
-      if type == 'Monthly': lbid = guildScoresM()
-      elif type == 'Total': lbid = guildScoresT()
-      #print(lbid)
-      lbid1 = list(lbid.keys())
-      if len(lbid1) > 10:
-        top10 = lbid1[:10]
-      else:
-        top10 = lbid1
-      Temoji = '<:ninjaIO_gold:784151877594906665>'
-      #print(top10)
-      def CreateLb(current10, cPos): #current10 is the dict set of current id+score, cPos is the position of those ids
-        cembed = discord.Embed(color=Color.green(), title=f'{type} Gold Donations Leaderboard:', description='Use `;d_lb total` for total donations!')
-        cembed.set_footer(text=f'Requested by: {ctx.author.name}#{ctx.author.discriminator}.')
-        #print(current10)
-        for uid in current10:
-          print(uid)
-          cPos+=1
-          uscore = lbid[uid]
-          umember = ctx.guild.get_member(int(uid))
-          #print(umember)
-          if not umember == None: 
-            names = f'{cPos}: {umember.name}#{umember.discriminator}'
-          else:
-            names = f'{cPos}: Missing User#0000'
-          uscore = f'  {Temoji} `{uscore}`'
-          cembed.add_field(name=names, value=uscore, inline=False)
-        return cembed
-      currentpos = 1
-      #send the first message
-      messagel = await ctx.send(embed=CreateLb(top10, 0))
-      #await ctx.message.delete()
-      def check(reaction, user):
-        return str(reaction.emoji) == "▶️" or str(reaction.emoji) == "◀️" and user.id == ctx.author.id and reaction.message.id == messagel.id
-      while True:
-        try:
-          await messagel.add_reaction("◀️")
-          await messagel.add_reaction("▶️")
-          reaction, user = await self.bot.wait_for('reaction_add', timeout=120.0, check=check)
-        except Exception:
-          break
-        if str(reaction.emoji) == "◀️" and user.id == ctx.author.id:
-          #move back
-          await messagel.remove_reaction("◀️",user)
-          #check if maxed out
-          if currentpos <= 1:
-            pass
-          else:
-            currentpos-=1 
-            #deal with short leaderboards
-            if len(lbid) < (currentpos*10):
-              current10 = lbid1[(currentpos*10-10):]
-            #deal with 10 leaderboards
-            elif len(lbid) > (currentpos*10):
-              current10 = lbid1[(currentpos*10-10):(currentpos*10)]
-            await messagel.edit(embed=CreateLb(current10, ((currentpos*10)-10)))
-        if str(reaction.emoji) == "▶️" and user.id == ctx.author.id:
-          #move forward
-          await messagel.remove_reaction("▶️",user)
-          #check if maxed out
-          if len(lbid) <= (currentpos*10):
-            pass
-          else:
-            currentpos+=1 
-            #deal with short leaderboards
-            if len(lbid) < (currentpos*10):
-              current10 = lbid1[(currentpos*10-10):]
-            #deal with 10 leaderboards
-            elif len(lbid) > (currentpos*10):
-              current10 = lbid1[(currentpos*10-10):(currentpos*10)]
-            await messagel.edit(embed=CreateLb(current10, ((currentpos*10)-10)))
+    # post monthly leaderboard.
+    @commands.command(help='View the leaderboard, args are <month> or <total>', aliases=['dlb', 'donationslb'])
+    async def d_lb(self, ctx, leaderboardType='month'):
+        if leaderboardType not in ('month', 'total'):
+            await ctx.send("That's not a valid type.")
+            return
+        await ctx.channel.typing()
+
+        leaderboardData = guildScoresM() if leaderboardType == 'month' else guildScoresT()
+        leaderboardIDs = list(leaderboardData.keys())[:10]  # Get top 10
+        goldEmoji = '<:ninjaIO_gold:784151877594906665>'
+
+        def createLeaderboardEmbed(entries, startPosition):
+            title = f'{leaderboardType.title()} Gold Donations Leaderboard:'
+            embed = discord.Embed(color=Color.green(), title=title, description='Use `;d_lb total` for total donations!')
+            embed.set_footer(text=f'Requested by: {ctx.author.name}#{ctx.author.discriminator}.')
+            for index, uid in enumerate(entries, start=startPosition):
+                member = ctx.guild.get_member(int(uid))
+                name = f'{index}: {member.name}#{member.discriminator}' if member else f'{index}: Missing User#0000'
+                score = f'  {goldEmoji} `{leaderboardData[uid]}`'
+                embed.add_field(name=name, value=score, inline=False)
+            return embed
+
+        leaderboardMessage = await ctx.send(embed=createLeaderboardEmbed(leaderboardIDs, 1))
+
+        def check(reaction, user):
+            return user.id == ctx.author.id and reaction.message.id == leaderboardMessage.id and str(reaction.emoji) in ["▶️", "◀️"]
+
+        currentPosition = 1
+        while True:
+            try:
+                await leaderboardMessage.add_reaction("◀️")
+                await leaderboardMessage.add_reaction("▶️")
+                reaction, user = await self.bot.wait_for('reaction_add', timeout=120.0, check=check)
+                if str(reaction.emoji) == "◀️":
+                    await handlePreviousPage()
+                elif str(reaction.emoji) == "▶️":
+                    await handleNextPage()
+
+            except Exception:
+                break
+
+        async def handlePreviousPage():
+            await leaderboardMessage.remove_reaction("◀️", user)
+            if currentPosition > 1:
+                currentPosition -= 1
+                currentEntries = calculateEntries(currentPosition)
+                await leaderboardMessage.edit(embed=createLeaderboardEmbed(currentEntries, (currentPosition - 1) * 10))
+
+        async def handleNextPage():
+            await leaderboardMessage.remove_reaction("▶️", user)
+            if len(leaderboardData) > currentPosition * 10:
+                currentPosition += 1
+                currentEntries = calculateEntries(currentPosition)
+                await leaderboardMessage.edit(embed=createLeaderboardEmbed(currentEntries, (currentPosition - 1) * 10))
+
+        def calculateEntries(position):
+            start = (position - 1) * 10
+            end = position * 10
+            return leaderboardIDs[start:end]
         
     @commands.command(help='Reset the leaderboard per month.')
     @commands.has_any_role(702011263680643173, 935919659872567366)

@@ -7,6 +7,16 @@ import psycopg2 as pgsql
 from init import conn, curr, is_it_me
 
 
+# Custom check to see if the user is an admin member
+def is_admin(ctx):
+    # Adminrole is 470547452873932806, on break is 844400909927710780
+    #print(ctx.author.roles)
+    for role in ctx.author.roles:
+      if role.id in [470547452873932806, 844400909927710780]:
+        return True
+    return False
+
+
 def get_ar():
   l = {}
   curr.execute('SELECT * FROM reactions ORDER BY trigger')
@@ -18,6 +28,7 @@ def remove_ar(trigger):
   curr.execute('DELETE FROM reactions WHERE trigger = %s', (trigger,))
   conn.commit()
 
+# Staff only commands
 class StaffOnly(commands.Cog):
     def __init__(self, bot):
       self.bot = bot
@@ -29,7 +40,7 @@ class StaffOnly(commands.Cog):
       print('staff_only is online')
 
     @commands.command(help='Send an embed, Admin only', aliases=['embed','emg'])
-    @commands.has_role(470547452873932806)
+    @commands.check(is_admin)
     async def embed_msg(self, ctx, *, msg):
       await ctx.channel.typing()
       embed = Embed(color=Color.magenta(), title=msg)
@@ -57,7 +68,7 @@ class StaffOnly(commands.Cog):
 
 
     @commands.command(help='Add an emojireaction, Dev only')
-    @commands.has_role(470547452873932806)
+    @commands.check(is_admin)
     async def ar_add(self, ctx, iemoji, trigger):      
       emoji=iemoji
       print(f'{emoji}:{trigger}')
@@ -66,7 +77,7 @@ class StaffOnly(commands.Cog):
       await ctx.send(f'{emoji} added for the trigger **{trigger}**')
 
     @commands.command(help='Check the list of autoreactions! Dev only')
-    @commands.has_role(470547452873932806)
+    @commands.check(is_admin)
     async def ar_list(self, ctx):
         dab = get_ar()
         m = ""
@@ -85,7 +96,7 @@ class StaffOnly(commands.Cog):
           
 
     @commands.command(help="Delete an autoreaction. Dev only")
-    @commands.has_role(470547452873932806) 
+    @commands.check(is_admin)
     async def ar_del(self, ctx, trigger):
         remove_ar(trigger)
         await ctx.send(f'{trigger} has been removed.')
@@ -141,7 +152,7 @@ class StaffOnly(commands.Cog):
       await ctx.send(f"Done. Alert level is now {str(alert)}.")
     
     @commands.command(help="Manually verify a member", aliases=['mv', 'verify'])
-    @commands.has_role(470547452873932806)
+    @commands.check(is_admin)
     async def manualverify(self, ctx, nusr:discord.Member):
       print("Manual verify triggered")
       role1 = ctx.guild.get_role(702710000048668783)
