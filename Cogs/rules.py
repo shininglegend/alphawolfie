@@ -38,7 +38,7 @@ else:
     RULES_CHA = 670361959345946657
 
 # Initial setup, will remove later
-#curr.execute('DROP TABLE IF EXISTS rules')
+curr.execute('DROP TABLE IF EXISTS rules')
 curr.execute('CREATE TABLE IF NOT EXISTS rules (id SERIAL PRIMARY KEY, rule TEXT NOT NULL, details TEXT, section INTEGER DEFAULT 0)')
 conn.commit()
 # Add the rules to the database if they aren't already there
@@ -95,6 +95,7 @@ def get_rules():
     curr.execute('SELECT * FROM rules')
     return curr.fetchall()
 
+print(get_rules())
 
 # Update a rule in the database
 def update_rule(number, rule, details=None, section=None):
@@ -153,6 +154,7 @@ class Rules(commands.Cog):
         rule = curr.execute('SELECT * FROM rules WHERE id = %s', (rule,))
         if curr.rowcount == 0:
             # Attempt a text search
+            curr.fetchall()
             curr.execute('SELECT * FROM rules WHERE rule LIKE %s', ('%'+rule+'%',))
             if curr.rowcount == 0:
                 await ctx.send('That rule was not found.')
