@@ -37,48 +37,7 @@ if location == 0:
 else:
     RULES_CHA = 670361959345946657
 
-# Initial setup, will remove later
-curr.execute('DROP TABLE IF EXISTS rules')
-curr.execute('CREATE TABLE IF NOT EXISTS rules (id SERIAL PRIMARY KEY, rule TEXT NOT NULL, details TEXT, section INTEGER DEFAULT 0)')
-conn.commit()
-# Add the rules to the database if they aren't already there
-def add_rules(rules):
-    curr.execute('SELECT * FROM rules')
-    if curr.rowcount == 0:
-        for rule in rules:
-            # Remove the number from the rule
-            #rule = rule[rule.find('.')+2:]
-            # Escape single quotes
-            rule = rule.replace("'", "''")
-            if not rule:
-                continue
-            curr.execute('INSERT INTO rules (rule) VALUES (%s)', (rule,))
-        conn.commit()
 
-rules = ["No spamming or flooding the chat with messages.",
-"No hate comments. Just respect everyone else, friendly debates are ok.",
-"No adult (18+), explicit, graphic content.",
-"No racist or degrading content.",
-"No excessive cursing.",
-"No advertising other sites/discord servers.",
-"No begging or repeatedly asking for help in the chat, just DM a staff member.",
-"Post content in the designated channels.",
-"Do not promote the intentional use of glitches, hacks, or bugs.",
-"Do not cause a nuisance in the community, repeated complaints from several members will lead to administrative action.",
-"Arguing or disrespect to staff members can and often will result in an instant ban. If you feel you have been wrongly treated, DM a higher-ranked staff member and ask for help.",
-"Don't post someone's personal information without their permission.",
-"Follow Discord TOS: https://discordapp.com/terms",
-"Don't ping staff unless you have a good reason, doing so will result in a mute.",
-"Don't DM staff with questions about game updates / ETA's / suggestions etc. Updates and release dates will be announced in the <#670362003356778498> channel, while suggestions belong in the <#670362431373180948> channel.",
-"No political banners or slogans allowed. Do not politicize the server.",
-"Impersonating staff or any other member is prohibited.",
-"Using alt accounts to bypass a punishment is not allowed.",
-"No 'dead chat' comments. There will be times when people don't chat. No need to remind everyone.",
-"Spreading false information, posting disturbing, misleading or political media /messages, and posting age-restricted content is not allowed.",
-"Your actions outside this discord will now also affect whether or not you are allowed inside the discord. You are still the same person, and we will not tolerate any raid/DDoS/death threats, or any major violation of the rules in ninja.io or any major social media site.",
-"This server is English only for moderation purposes."]
-add_rules(rules)
-# End initial setup
 
 # Reset the table
 def reset_rules(rules):
@@ -95,7 +54,7 @@ def get_rules():
     curr.execute('SELECT * FROM rules ORDER BY id ASC')
     return curr.fetchall()
 
-print(get_rules())
+#print(get_rules())
 
 # Update a rule in the database
 def update_rule(number, rule, details=None, section=None):
