@@ -47,7 +47,7 @@ def add_rules(rules):
     if curr.rowcount == 0:
         for rule in rules:
             # Remove the number from the rule
-            rule = rule[rule.find('.')+2:]
+            #rule = rule[rule.find('.')+2:]
             # Escape single quotes
             rule = rule.replace("'", "''")
             if not rule:
@@ -92,7 +92,7 @@ def reset_rules(rules):
 
 # Grab the rules from the database
 def get_rules():
-    curr.execute('SELECT * FROM rules')
+    curr.execute('SELECT * FROM rules ORDER BY id ASC')
     return curr.fetchall()
 
 print(get_rules())
@@ -145,6 +145,22 @@ class Rules(commands.Cog):
                     timestamp=ctx.message.created_at)
         embed.set_thumbnail(url='https://cdn.discordapp.com/emojis/756567998570954903.png?v=1')
         await channel.send(embed=embed)
+
+    # Confirm an operation via reaction
+    async def confirm(self, ctx, msg, timeout=10.0):
+        await msg.add_reaction('✅')
+        await msg.add_reaction('❌')
+        def check(reaction, user):
+            return user == ctx.author and str(reaction.emoji) in ['✅', '❌']
+        try:
+            reaction, user = await self.bot.wait_for('reaction_add', timeout=timeout, check=check)
+            if str(reaction.emoji) == '❌':
+                await ctx.reply('Operation cancelled.')
+                return False
+        except:
+            await ctx.reply('Timed out. Operation cancelled.')
+            return False
+        return True
 
     # Get a specific rule by number
     @commands.hybrid_command(help='Get a specific rule by number or text', aliases=['r, rules, getrule, gr'])
@@ -199,6 +215,33 @@ class Rules(commands.Cog):
         await self.send_rules(ctx, channel)
         await ctx.reply('Rules updated!') 
 
+    # Update a rule
+    @commands.command(help='Update a rule by rule number, Admin only')
+    @commands.check(is_admin)
+    async def update_rule(self, ctx, rule: int, *, new_rule):
+        # Confirm they want to update the rule via reaction
+        curr.execute('SELECT rule FROM rules WHERE id = %s', (rule,))
+        #print(curr.rowcount)
+        #print(curr.fetchone())
+        if curr.rowcount == 0:
+            await ctx.reply('That rule was not found.')
+            return
+        rule_disc = curr.fetchone()[0]
+        msg = await ctx.reply(f'Are you sure you want to update rule {rule}: {rule_disc}?')
+        if not await self.confirm(ctx, msg):
+            await ctx.reply('Cancelled.')
+            return
+
+        # Update the rule (and the x reaction)
+        await msg.remove_reaction('❌', self.bot.user)
+        await msg.edit(content='Updating rules...')
+        new_rule = new_rule.replace("'", "''")
+        update_rule(rule, new_rule)      
+        # Send the rules embed
+        channel = await ctx.guild.fetch_channel(RULES_CHA)
+        await self.send_rules(ctx, channel)
+        await msg.edit(content='Rule updated, and rules list updated!')
+
     # Add a rule
     @commands.command(help='Add a rule, Admin only')
     @commands.check(is_admin)
@@ -232,17 +275,8 @@ class Rules(commands.Cog):
             return
         rule_disc = curr.fetchone()[0]
         msg = await ctx.reply(f'Are you sure you want to remove rule {rule}: {rule_disc}?')
-        await msg.add_reaction('✅')
-        await msg.add_reaction('❌')
-        def check(reaction, user):
-            return user == ctx.author and str(reaction.emoji) in ['✅', '❌']
-        try:
-            reaction, user = await self.bot.wait_for('reaction_add', timeout=10.0, check=check)
-            if str(reaction.emoji) == '❌':
-                await ctx.reply('Rule not removed.')
-                return
-        except:
-            await ctx.reply('Timed out. Operation cancelled.')
+        if not await self.confirm(ctx, msg):
+            await ctx.reply('Cancelled.')
             return
         
         # Remove the rule (and the x reaction)
