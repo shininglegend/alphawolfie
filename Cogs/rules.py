@@ -126,14 +126,14 @@ class Rules(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.channel)
     async def rule(self, ctx, rule):
         await ctx.defer()
-        rule = curr.execute('SELECT * FROM rules WHERE id = %s', (rule,))
-        if curr.rowcount == 0:
-            # Attempt a text search
-            curr.fetchall()
+        # If it's a number:
+        if rule.isdigit():
+            rule = curr.execute('SELECT * FROM rules WHERE id = %s', (rule,))
+        else:
             curr.execute('SELECT * FROM rules WHERE rule LIKE %s', ('%'+rule+'%',))
-            if curr.rowcount == 0:
-                await ctx.send('That rule was not found.')
-                return
+        if curr.rowcount == 0:
+            await ctx.send('That rule was not found.')
+            return
         rule = curr.fetchone()
         # TODO: Need to add section and details if they exist
         await ctx.send("📖 " + str(rule[0]) + ". " + rule[1])
