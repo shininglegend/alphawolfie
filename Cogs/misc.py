@@ -124,7 +124,7 @@ class Misc(commands.Cog):
 ## Welcome to the official Ninja.io Discord.
 We look forward to welcoming you soon! To prevent alt accounts from joining, we require you to verify your email and wait 10 minutes before you can chat in the server.
 *If you need help verifying your email, please follow this guide: https://support.discordapp.com/hc/en-us/articles/213219267-Resending-Verification-Email*
-You may also be dmed by <@372022813839851520> to verify your account. If you get that dm and fail to verify, you will be kicked.
+You may also be dmed by <@703886990948565003> to verify your account. If you get that dm and fail to verify, you will be kicked.
 I'll be back in **10 minutes** to let you know that the timer has ended! In the meantime, you can check out the following channels:
     <#670362003356778498> - See the latest announcements from the Ninja.io developer
     <#670361959345946657> - Read the Rules!!!
@@ -138,13 +138,19 @@ If you get kicked or just leave and ever want to rejoin us, you may use this lin
         await member.send('## Yay! You can now chat in the Ninja.io server!\nPlease join us by saying hi in <#670362292659159040>. You will also be pinged there shortly!')
         # Wait 10 seconds
         await asyncio.sleep(10)
+        # Remove their temp verify role if they have it
+        role1 = member.guild.get_role(1112180557539971074)
+        try:
+          await member.remove_roles(role1, reason='Verification ended.')
+        except Exception as e:
+          print(f'Error removing role: {e}')
         # Ping them in general chat
         channel = member.guild.get_channel(670362292659159040)
         await channel.send(f'Welcome, <@{member.id}> as the {member.guild.member_count}th user!')
         await channel.send(f'~{randomtopic()}') 
       # If they left the server, just print to console
       else:
-        print(f'{member.name} left before verification ended.')
+        print(f'{member.name} left/kicked before verification ended.')
 
 
     #commands

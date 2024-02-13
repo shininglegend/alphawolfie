@@ -38,7 +38,6 @@ else:
     RULES_CHA = 670361959345946657
 
 
-
 # Reset the table
 def reset_rules(rules):
     curr.execute('DROP TABLE IF EXISTS rules')
@@ -50,11 +49,44 @@ def reset_rules(rules):
         conn.commit()
 
 # Grab the rules from the database
-def get_rules():
-    curr.execute('SELECT * FROM rules ORDER BY id ASC')
+def get_rules(id = None, rule = None, details = None, section = None):
+    if id:
+        curr.execute('SELECT * FROM rules WHERE id = %s', (id,))   
+    elif rule:
+        curr.execute('SELECT * FROM rules WHERE rule = %s', (rule,))       
+    elif details:
+        curr.execute('SELECT * FROM rules WHERE details = %s', (details,))
+    elif section:
+        curr.execute('SELECT * FROM rules WHERE section = %s', (section,))
+    else:
+        curr.execute('SELECT * FROM rules ORDER BY id ASC')
+    if curr.rowcount == 0:
+        return None
     return curr.fetchall()
 
+def get_rule_by_search(rule_search):
+    curr.execute('SELECT * FROM rules WHERE rule LIKE %s', ('%'+rule_search+'%',))
+    if curr.rowcount == 0:
+        return None
+    return curr.fetchone()
+
+def get_rule_disc(rule):
+    curr.execute('SELECT rule FROM rules WHERE id = %s', (rule,))
+    if curr.rowcount == 0:
+        return None
+    return curr.fetchone()[0]
+
 #print(get_rules())
+# Add rules to the database
+def add_rules(rules):
+    for rule in rules:
+        insert_rule(rule)
+
+
+def insert_rule(rule, details=None, section=None):
+    rule = rule.replace("'", "''")
+    curr.execute('INSERT INTO rules (rule, details, section) VALUES (%s, %s, %s)', (rule, details, section))
+    conn.commit()
 
 # Update a rule in the database
 def update_rule(number, rule, details=None, section=None):
@@ -86,6 +118,9 @@ class Rules(commands.Cog):
         rules = get_rules()
         #print(rules)
         descript = ''
+        if not rules:
+            await channel.send('There are no rules set yet.')
+            return
         # Reset the numbering if it's off
         if rules[0][0] != 1:
             reset_rules(get_rules())
@@ -128,13 +163,12 @@ class Rules(commands.Cog):
         await ctx.defer()
         # If it's a number:
         if rule.isdigit():
-            rule = curr.execute('SELECT * FROM rules WHERE id = %s', (rule,))
+            rule = get_rules(id=int(rule))
         else:
-            curr.execute('SELECT * FROM rules WHERE rule LIKE %s', ('%'+rule+'%',))
-        if curr.rowcount == 0:
+            rule = get_rule_by_search(rule)
+        if not rule:
             await ctx.send('That rule was not found.')
             return
-        rule = curr.fetchone()
         # TODO: Need to add section and details if they exist
         await ctx.send("📖 " + str(rule[0]) + ". " + rule[1])
     
@@ -168,8 +202,7 @@ class Rules(commands.Cog):
             if not rule or rule == ' ' or rule == "\n":
                 continue
             # TODO: Add section and details if they exist
-            curr.execute('INSERT INTO rules (rule) VALUES (%s)', (rule,))
-        conn.commit()
+            insert_rule(rule)
         channel = await ctx.guild.fetch_channel(RULES_CHA)
         await self.send_rules(ctx, channel)
         await ctx.reply('Rules updated!') 
@@ -179,13 +212,12 @@ class Rules(commands.Cog):
     @commands.check(is_admin)
     async def update_rule(self, ctx, rule: int, *, new_rule):
         # Confirm they want to update the rule via reaction
-        curr.execute('SELECT rule FROM rules WHERE id = %s', (rule,))
+        rule_disc = get_rule_disc(rule)
         #print(curr.rowcount)
         #print(curr.fetchone())
-        if curr.rowcount == 0:
+        if not rule_disc:
             await ctx.reply('That rule was not found.')
             return
-        rule_disc = curr.fetchone()[0]
         msg = await ctx.reply(f'Are you sure you want to update rule {rule}: {rule_disc}?')
         if not await self.confirm(ctx, msg):
             await ctx.reply('Cancelled.')
@@ -213,12 +245,9 @@ class Rules(commands.Cog):
             rule, details = rule.split("|")
             rule = rule.strip()
             details = details.strip()
-        # Get the number of rules
-        curr.execute('SELECT * FROM rules')
+
         # Add the rule
-        rule = rule.replace("'", "''")
-        curr.execute('INSERT INTO rules (rule, details) VALUES (%s, %s)', (rule, details))
-        conn.commit()
+        insert_rule(rule, details)
         channel = await ctx.guild.fetch_channel(RULES_CHA)
         await self.send_rules(ctx, channel)
         await ctx.reply('Rule added!')
@@ -228,11 +257,10 @@ class Rules(commands.Cog):
     @commands.check(is_admin)
     async def remove_rule(self, ctx, rule: int):
         # Confirm they want to remove the rule via reaction
-        curr.execute('SELECT rule FROM rules WHERE id = %s', (rule,))
-        if curr.rowcount == 0:
+        rule_disc = get_rule_disc(rule)
+        if not rule_disc:
             await ctx.reply('That rule was not found.')
             return
-        rule_disc = curr.fetchone()[0]
         msg = await ctx.reply(f'Are you sure you want to remove rule {rule}: {rule_disc}?')
         if not await self.confirm(ctx, msg):
             await ctx.reply('Cancelled.')
