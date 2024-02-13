@@ -139,7 +139,7 @@ If you get kicked or just leave and ever want to rejoin us, you may use this lin
         # Wait 10 seconds
         await asyncio.sleep(10)
         # Remove their temp verify role if they have it
-        role1 = member.guild.get_role(1112180557539971074)
+        role1 = member.guild.get_role(1206992415047819295)
         try:
           await member.remove_roles(role1, reason='Verification ended.')
         except Exception as e:
