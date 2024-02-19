@@ -122,10 +122,12 @@ class Misc(commands.Cog):
       memberdm = await member.create_dm()
       await memberdm.send(f"""Hey there, <@{member.id}>! 
 ## Welcome to the official Ninja.io Discord.
-We look forward to welcoming you soon! To prevent alt accounts from joining, we require you to verify your email and wait 10 minutes before you can chat in the server.
+We look forward to welcoming you soon! To prevent alt accounts from joining, we require 2 things:
+- Verification via <@703886990948565003>, so check your dms with that bot. If you fail to verify, you will be kicked.
+- That you have an email verified with Discord, and wait 10 minutes before you can chat in the server.
 *If you need help verifying your email, please follow this guide: https://support.discordapp.com/hc/en-us/articles/213219267-Resending-Verification-Email*
-You may also be dmed by <@703886990948565003> to verify your account. If you get that dm and fail to verify, you will be kicked.
-I'll be back in **10 minutes** to let you know that the timer has ended! In the meantime, you can check out the following channels:
+I'll be back in **10 minutes** to let you know that the timer has ended! Be sure to verify in the meantime!
+After that, you can check out the following channels:
     <#670362003356778498> - See the latest announcements from the Ninja.io developer
     <#670361959345946657> - Read the Rules!!!
     <#750176588418646096> or <#834228209305387038> - See some amazing art made by the community!
