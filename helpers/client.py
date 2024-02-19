@@ -23,7 +23,7 @@ class MyClient(commands.Bot):
     cha = self.get_channel(777042897630789633)
     if not title:
       title="Logged Event:"
-    embed3 = Embed(title=title, description=message, color=Color.green(), timestamp=datetime.datetime)
+    embed3 = Embed(title=title, description=message, color=Color.green(), timestamp=datetime.datetime.now())
     await cha.send(embed=embed3)
 
   async def logerrors(self, message, ctx=None):
@@ -92,47 +92,47 @@ class MyClient(commands.Bot):
     game = discord.Game("https://ninja.io")
     await self.change_presence(status=discord.Status.dnd, activity=game)
 
-  async def on_message(self, message):
-    await self.process_commands(message)
-    if message.author == self.user:
-      return
-    #print(message.content)
-    msg = message.content
-    
-    #emojireacts = db['newreacts']
+  # Helper function to fetch emoji reactions from the database
+  def fetch_emoji_reactions(self):
+    # Initialize an empty dictionary to hold emoji reactions
     emojireacts = {}
+    # Execute a query to select all reactions from the database
     curr.execute('SELECT * FROM reactions')
-    for row in curr.fetchall():
-      emojireacts[row[1]] = row[2]
+    for row in curr.fetchall():  # Fetch all rows from the query result
+        emojireacts[row[1]] = row[2]  # Map each trigger to its corresponding emoji
+    return emojireacts
+  
+  async def on_message(self, message):
+    # Process any commands that might be in the message
+    await self.process_commands(message)
     
-    #print(emojireacts)
-    #print(message.mentions)
-    mentions = []
-    for mention in message.mentions:
-      mentions.append(str(mention.id))
-    #print(mentions)
-    for trigs in emojireacts:
-      if trigs in mentions:
-        print('found mention: '+trigs)
-        emote = emojireacts[trigs]
-        print(emote)
-        if not message.channel.id in [876586125987295283, 876586168953737246]:
-          if location == 1: 
-            await message.add_reaction(emote) #disable
-          i = 0
-      elif trigs in (str.lower(msg)):
-        emote = emojireacts[trigs]
-        if not message.channel.id in [876586125987295283, 876586168953737246]:
-          if location == 1: 
-            try:
-              await message.add_reaction(emote) #disable
-            except discord.errors.HTTPException:
-              print('Unknown Emoji: '+emote)
-              await self.logEvent('Unknown Emoji: '+emote)
-          i = 0
+    # Ignore messages sent by the bot itself to prevent self-responses
+    if message.author == self.user:
+        return
 
-    if msg.startswith(';'):
-      print(str(msg))
+    # Fetch emoji reactions from the database
+    emojireacts = self.fetch_emoji_reactions()
+    
+    # Extract IDs of all mentioned users in the message for easy lookup
+    mentions = [str(mention.id) for mention in message.mentions]
+
+    # Iterate over each trigger in the emoji reactions
+    for trigger, emote in emojireacts.items():
+        # Check if the trigger is in the mentions or in the message content (case-insensitive)
+        if trigger in mentions or trigger in message.content.lower():
+            # Check if the message is not in a specific channel and location is set to 1 before reacting
+            if message.channel.id not in [876586125987295283, 876586168953737246] and location == 1:
+                try:
+                    # Attempt to add the reaction to the message
+                    await message.add_reaction(emote)
+                except discord.errors.HTTPException:
+                    # If there's an HTTPException (e.g., emoji not found), use a fallback emoji
+                    fallback_emoji = self.get_emoji(1208944867305066516)
+                    await message.add_reaction(fallback_emoji)
+
+    # Special handling for messages that start with ';', for example, logging or special commands
+    if message.content.startswith(';'):
+        print(message.content)
 
   # async def on_raw_reaction_add(self, reaction):
   #   if reaction.channel_id == 901726179818614824:
