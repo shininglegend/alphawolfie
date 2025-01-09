@@ -24,10 +24,10 @@ from init import conn, curr
 def checkGoldTotal(cachenumber):
     a = f'CacheNinja{cachenumber}'
     b = f'AliBabaPotato{cachenumber}098'      #pass in your username as 'a' and password and your password as 'b'
-    c = requests.post('https://api.ninja.io/user/login', data= {'name': a, 'password': b})  #login
+    c = requests.post('https://api2.ninja.io/user/login', data= {'name': a, 'password': b})  #login
     if 'id' in c.json():                                                                    #check if your credentials are valid/nothing has gone horrible wrong
         time.sleep(0.1)                                                                     #per Buizerd request we have to limit api requests to 10 per second
-        d = requests.get('https://api.ninja.io/user/currency/'+c.json()['id'])              #get the currency
+        d = requests.get('https://api2.ninja.io/user/currency/'+c.json()['id'])              #get the currency
         return int(d.json()['currency']['gold'])                                            #return an integer
     else:
         return 'Invalid'                                                                    #what it returns if something is wrong/invalid
