@@ -82,7 +82,7 @@ class Misc(commands.Cog):
       # This adds reactions in the weapon design channel
       if message.attachments and message.channel.id == 1365612478939271261:
         # create a thread
-        await message.create_thread(name=f'{message.author.name}\'s map', auto_archive_duration=1440)
+        await message.create_thread(name=f'{message.author.name}\'s weapon', auto_archive_duration=1440)
         # add reactions based on if we have custom emojis or not
         try:
           await message.add_reaction("<:upvote:904548817783894026>")
