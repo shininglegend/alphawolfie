@@ -6,7 +6,7 @@ import psycopg2 as pgsql
 
 from init import conn, curr, location
 
-MEDIA_CHANNEL_IDS = [835164179001901099, 911020430368866314]
+MEDIA_CHANNEL_IDS = [835164179001901099, 911020430368866314, 1365612478939271261]
 # These roles bypass the media check
 ROLE_IDS = [470547452873932806, 670427731468746783] 
 
@@ -66,8 +66,21 @@ class Misc(commands.Cog):
         await self.log0101(message=f'<@{message.author.id}> in <#{message.channel.id}> : {message.content}', title='Deleted message')   
         #print('Deleted message')
 
-      # This adds reactions in the maps channel
+      # This adds reactions in the map design channel
       if message.attachments and message.channel.id == 911020430368866314:
+        # create a thread
+        await message.create_thread(name=f'{message.author.name}\'s map', auto_archive_duration=1440)
+        # add reactions based on if we have custom emojis or not
+        try:
+          await message.add_reaction("<:upvote:904548817783894026>")
+          await message.add_reaction("<:downvote:904548736884150292>")
+        except discord.errors.HTTPException:
+          await message.clear_reactions()
+          await message.add_reaction("👍")
+          await message.add_reaction("👎")
+
+      # This adds reactions in the weapon design channel
+      if message.attachments and message.channel.id == 1365612478939271261:
         # create a thread
         await message.create_thread(name=f'{message.author.name}\'s map', auto_archive_duration=1440)
         # add reactions based on if we have custom emojis or not
