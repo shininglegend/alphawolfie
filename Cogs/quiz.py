@@ -4,6 +4,7 @@ from discord.ui import View, Button
 import csv
 import asyncio
 import datetime
+import time
 
 
 LOG_CHANNEL = 777042897630789633
@@ -24,6 +25,8 @@ class QuizSession:
         self.user_answers = []
         self.score = 0
         self.total_questions = len(quiz_data.questions)
+        self.question_times = []
+        self.question_start_time = None
 
 class QuizView(View):
     def __init__(self, quiz_session, question_index):
@@ -31,6 +34,8 @@ class QuizView(View):
         self.quiz_session = quiz_session
         self.question_index = question_index
         self.user_selections = []
+        # Start timing when view is created
+        self.quiz_session.question_start_time = time.time()
 
         # Add option buttons (A, B, C, D)
         options = self.quiz_session.quiz_data.get_options(question_index)
@@ -72,6 +77,10 @@ class QuizView(View):
             await interaction.response.send_message("This quiz is not for you!", ephemeral=True)
             return
 
+        # Calculate time taken
+        time_taken = time.time() - self.quiz_session.question_start_time
+        self.quiz_session.question_times.append(time_taken)
+
         # Store user answer
         self.quiz_session.user_answers.append(self.user_selections.copy())
 
@@ -82,9 +91,9 @@ class QuizView(View):
             self.quiz_session.score += 1
 
         # Show results embed
-        await self.show_results(interaction, correct_answers, is_correct)
+        await self.show_results(interaction, correct_answers, is_correct, time_taken)
 
-    async def show_results(self, interaction, correct_answers, is_correct):
+    async def show_results(self, interaction, correct_answers, is_correct, time_taken):
         question = self.quiz_session.quiz_data.get_question(self.question_index)
         options = self.quiz_session.quiz_data.get_options(self.question_index)
 
@@ -98,6 +107,7 @@ class QuizView(View):
         embed.add_field(name="Options", value=options_text, inline=False)
         embed.add_field(name="Your Answer", value=", ".join(self.user_selections) if self.user_selections else "None", inline=True)
         embed.add_field(name="Correct Answer", value=", ".join(correct_answers), inline=True)
+        embed.add_field(name="Time Taken", value=f"{time_taken:.1f}s", inline=True)
         embed.add_field(name="Result", value="✅ Correct!" if is_correct else "❌ Incorrect", inline=False)
 
         # Disable all buttons
@@ -143,7 +153,12 @@ class QuizView(View):
         )
 
         percentage = (self.quiz_session.score / self.quiz_session.total_questions) * 100
+        total_time = sum(self.quiz_session.question_times)
+        avg_time = total_time / len(self.quiz_session.question_times) if self.quiz_session.question_times else 0
+
         embed.add_field(name="Percentage", value=f"{percentage:.1f}%", inline=True)
+        embed.add_field(name="Total Time", value=f"{total_time:.1f}s", inline=True)
+        embed.add_field(name="Average Time", value=f"{avg_time:.1f}s", inline=True)
 
         if percentage >= 80:
             embed.add_field(name="Result", value="🎉 Passed!", inline=True)
@@ -197,7 +212,7 @@ class Quiz(commands.Cog):
     @commands.command()
     @commands.has_guild_permissions(administrator=True)
     async def start_quiz(self, ctx, target_mod):
-        await ctx.message.delete()
+        # await ctx.message.delete()
         try:
             # Handle both mentions and raw IDs
             if isinstance(target_mod, str):
@@ -216,9 +231,9 @@ class Quiz(commands.Cog):
             print(f"An error occurred: {e}")
             return
 
-        await ctx.send(f"Quiz started for {user.name}#{user.discriminator}!")
-        print(f"Quiz started for {user.name}#{user.discriminator}!")
-        await self.log0101(f"Quiz started for {user.name}#{user.discriminator}!")
+        await ctx.send(f"{user.mention}, it's quiz time! Each question has 1-3 valid answers. Select all correct answers and no incorrect ones for credit. Good luck!")
+        print(f"Quiz started for {user.name}!")
+        await self.log0101(f"Quiz started for {user.name}!")
 
         # Initialize quiz
         quiz_data = quizQuestions()
