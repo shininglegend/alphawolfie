@@ -1,21 +1,21 @@
 question,options,answer
 A level 10 user spams 5+ similar emojis in a single message. They have no prior valid offenses. What do you do?,"A) Delete the message only-no punishment,B) Verbal warn,C) Call them a troll,D) Kick them",B
 A level 3 user spams 5+ similar emojis in one message. They have no prior valid offenses. What do you do?,"A) Verbal warn,B) Warn,C) Mute 1h,D) Mute 3h",B
-A level 25 user promotes the use of a glitch in general chat. They have one mute 5 months ago.,"A) Warn,B) Mute 3h,C) Mute 24h,D) Ban",B
-You see a user with an inappropriate status. They are level 40. What are the first steps?,"A) Warn them to change it,B) Kick them immediately,C) Set a 24h reminder to recheck,D) Ban them immediately","A,C"
-A level 20 user DMs another user inappropriate images without consent. No previous offenses.,"A) Warn,B) Mute 3h,C) Kick,D) Ban",B
+A level 25 user promotes the use of a glitch in general chat. They have one mute 5 months ago.,"A) Ban,B) Mute 24h,C) Warn,D) Mute 3h",D
+You see a user with an inappropriate status. They are level 40. What are the first steps? (2 answers),"A) Warn them to change it,B) Kick them,C) Set a 24h reminder to recheck,D) Ban them","A,C"
+"A level 20 user DMs you something that makes you uncomfortable, but it's not punishable. No previous offenses. What's the preferred option?","A) Block,B) Mute 3h,C) Kick,D) Warn",A
 A level 1 user joins and posts NSFW messages immediately. What all should you do?,"A) Warn,B) Mute 3h,C) Mute 24h,D) Ask admin+ to ban","C,D"
-Which of the following messages would likely be considered too NSFW?,"A) Meme with visible underwear and sexual pose,B) Text-only joke about someone's mom,C) Drawing with significant skin exposure and focus on private parts,D) Screenshot of classroom chat","A,C"
+Which of the following messages would likely be considered too NSFW?,"A) Meme with visible underwear and sexual pose,B) Text-only joke about someone's mom,C) Drawing with significant skin exposure and focus on sexial body parts,D) Screenshot of admin chat","A,C"
 Which of the following correctly uses the Wick mute command for 1 hour with a reason?,"A) .mute @user ?r spamming ?t 1h,B) .mute @user ?t 1h spamming,C) .mute @user ?t 1h ?r spamming,D) .mute @user spamming ?t 1h","A,C"
 A level 30 user with one recent case abuses the suggestion system. What is the next punishment?,"A) Warn,B) Mute 3h,C) Blacklist,D) Ban",B
 Which of the following scenarios should a moderator or trial moderator escalate to admin+?,"A) A user breaks a rule not listed in the punishment guide,B) You need to ban a user,C) Someone is arguing with you about your mute,D) A user posts a gray-area NSFW image","A,B"
-A level 12 user is arguing and has one valid recent case. What is the next punishment?,"A) Warn,B) Mute 3h,C) Mute 24h,D) Ban",C
+A level 12 user is being toxic and has one valid recent case. What is the next punishment?,"A) Warn,B) Mute 3h,C) Mute 24h,D) Ban",A
 How should moderators act when handling conflict in chat?,"A) Escalate punishment quickly,B) De-escalate first,C) Be impartial,D) Prioritize silencing all dissent","B,C"
-A level 8 user spams 4+ times with wall text. No prior cases. What do you do?,"A) Warn,B) Mute 3h,C) Mute 24h,D) Ban",B
-A level 9 user is toxic about a mute another staff gave. They have one prior case.,"A) Mute 3h,B) Mute 12h,C) Mute 24h,D) Ban",C
+A level 8 user spams 4+ times with wall text. No prior cases. What do you do?,"A) Warn,B) Mute 3h,C) Mute 24h,D) Ban",C
+A level 9 user is toxic about a mute another staff gave. They have one prior case.,"A) Mute 3h,B) Mute 12h,C) Mute 24h,D) Ban",B
 A level 2 user joins and mass pings others. What should you do?,"A) Kick them,B) Follow raid procedure,C) Warn them,D) Ban them",B
-When can you skip warnings for abusing the bug-report forum?,"A) When it is a repeated offense,B) When it's clearly a troll post,C) When a user DMs you about it,D) When an admin says so","A,B"
-A level 50 user bypasses a banned word. No automod caught it. No prior cases.,"A) Warn,B) Mute 3h,C) Mute 12h,D) Mute 24h",B
-A user asks if an image is NSFW. It's gray area. What should you do?,"A) Make a solo decision,B) Ask another moderator for opinion,C) Tell them it's fine if unsure,D) Let automod decide",B
-What is the first step when someone breaks a rule not listed in mod info? (not time-sensitive),"A) Use your best judgment and punish,B) Warn and ask about it in a staff chat,C) Ping @admins immediately,D) Do whatever other members suggest","B,C"
-Which are part of the logging requirements when warning a user?,"A) What rule they broke,B) How they broke it,C) Their username,D) Their level","A,B"
+When can you skip warnings for abusing the bug-report forum?,"A) When it is a repeated offense,B) When it's clearly a troll post,C) When a user DMs you about it,D) When an admin says so",B
+A level 50 user bypasses a banned word. No automod caught it. No prior cases.,"A) Warn,B) Mute 24h,C) Mute 12h,D) Mute 3h",D
+A user asks if an image is NSFW. It's gray area. What should you do?,"A) Make a solo decision,B) Let automod decide,C) Tell them it's probably fine if unsure,D) Ask another moderator for opinion",B
+What is the first step when someone breaks a rule not listed in mod info? (not urgent),"A) Use your best judgment and punish,B) Verbal warn and ask about it in a staff chat,C) Roll a 24-sided dice and mute them that long,D) Do whatever other members suggest",B
+Which are part of the logging requirements when warning a user?,"A) What rule they broke,B) How they broke it,C) Which admin gave approval,D) Their level","A,B"

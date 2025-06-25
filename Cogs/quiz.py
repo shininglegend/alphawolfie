@@ -34,6 +34,7 @@ class QuizSession:
         self.question_start_time = None
         self.bot = None  # Store bot reference for cleanup
         self.interface_type = None  # 'buttons' or 'select'
+        self.start_message = None
 
 class QuizView(View):
     def __init__(self, quiz_session, question_index):
@@ -265,32 +266,29 @@ class QuizView(View):
     async def log_quiz_results(self):
         """Log detailed quiz results to QUIZ_LOGS channel"""
         try:
-            # Get bot from guild
-            bot_member = self.quiz_session.channel.guild.me
-            if not bot_member:
+            if not self.quiz_session.bot:
                 return
 
-            # Get bot client through the channel
-            bot = self.quiz_session.channel.guild._state._get_client()
-            if not bot:
-                return
-
-            log_channel = bot.get_channel(QUIZ_LOGS)
+            log_channel = self.quiz_session.bot.get_channel(QUIZ_LOGS)
             if not log_channel:
                 return
 
             percentage = (self.quiz_session.score / self.quiz_session.total_questions) * 100
             total_time = sum(self.quiz_session.question_times)
 
-            embed = Embed(
+            # Create main results embed
+            main_embed = Embed(
                 title="Quiz Results",
                 description=f"**User:** {self.quiz_session.user.mention}\n**Score:** {self.quiz_session.score}/{self.quiz_session.total_questions} ({percentage:.1f}%)\n**Total Time:** {total_time:.1f}s",
                 color=Color.green() if percentage >= 80 else Color.red(),
                 timestamp=datetime.datetime.now()
             )
+            await log_channel.send(embed=main_embed)
 
-            # Add detailed results for each question
-            results_text = ""
+            # Split question details across multiple messages if needed
+            question_chunks = []
+            current_chunk = ""
+
             for i in range(self.quiz_session.total_questions):
                 question = self.quiz_session.quiz_data.get_question(i)
                 user_answer = ", ".join(self.quiz_session.user_answers[i]) if self.quiz_session.user_answers[i] else "None"
@@ -299,16 +297,30 @@ class QuizView(View):
                 time_taken = self.quiz_session.question_times[i]
 
                 status = "✅" if is_correct else "❌"
-                results_text += f"**Q{i+1}:** {status} ({time_taken:.1f}s)\n"
-                results_text += f"*{question[:100]}{'...' if len(question) > 100 else ''}*\n"
-                results_text += f"**Your Answer:** {user_answer}\n"
-                results_text += f"**Correct:** {correct_answer}\n\n"
+                question_text = f"**Q{i+1}:** {status} ({time_taken:.1f}s)\n"
+                question_text += f"*{question[:100]}{'...' if len(question) > 100 else ''}*\n"
+                question_text += f"**Your Answer:** {user_answer}\n"
+                question_text += f"**Correct:** {correct_answer}\n\n"
 
-            embed.add_field(name="Question Details", value=results_text[:1024], inline=False)
-            if len(results_text) > 1024:
-                embed.add_field(name="Question Details (continued)", value=results_text[1024:2048], inline=False)
+                # Check if adding this question would exceed 1800 chars (safe margin)
+                if len(current_chunk) + len(question_text) > 1800:
+                    question_chunks.append(current_chunk)
+                    current_chunk = question_text
+                else:
+                    current_chunk += question_text
 
-            await log_channel.send(embed=embed)
+            # Add final chunk if not empty
+            if current_chunk:
+                question_chunks.append(current_chunk)
+
+            # Send question details in separate embeds
+            for i, chunk in enumerate(question_chunks):
+                chunk_embed = Embed(
+                    title=f"Question Details ({i+1}/{len(question_chunks)})" if len(question_chunks) > 1 else "Question Details",
+                    description=chunk,
+                    color=Color.blue()
+                )
+                await log_channel.send(embed=chunk_embed)
 
         except Exception as e:
             print(f"Error logging quiz results: {e}")
@@ -319,8 +331,11 @@ class QuizView(View):
             if self.quiz_session.bot:
                 def is_bot_message(message):
                     return message.author == self.quiz_session.bot.user
+                if self.quiz_session.start_message is not None:
+                    await self.quiz_session.channel.purge(limit=100, check=is_bot_message, after=self.quiz_session.start_message)
+                else:
+                    await self.quiz_session.channel.purge(limit=len(quiz_questions), check=is_bot_message)
 
-                await self.quiz_session.channel.purge(limit=len(quiz_questions), check=is_bot_message)
         except Exception as e:
             print(f"Error cleaning up messages: {e}")
 
@@ -361,8 +376,8 @@ class InterfaceChoiceView(View):
             await interaction.response.send_message("This quiz is not for you!", ephemeral=True)
             return
 
-        await interaction.response.edit_message(content=f"{self.user.mention}, starting quiz with buttons! Each question has 1-3 valid answers. Select all correct answers and no incorrect ones for credit. Good luck!", view=None)
-        await self.start_quiz_with_interface("buttons")
+        message = await interaction.response.edit_message(content=f"{self.user.mention}, starting quiz with buttons! Each question has 1-3 valid answers. Select all correct answers and no incorrect ones for credit. Good luck!", view=None)
+        await self.start_quiz_with_interface("buttons", message)
 
     @discord.ui.button(label="Select Menu", style=ButtonStyle.primary, emoji="📋")
     async def select_choice(self, interaction, button):
@@ -370,10 +385,10 @@ class InterfaceChoiceView(View):
             await interaction.response.send_message("This quiz is not for you!", ephemeral=True)
             return
 
-        await interaction.response.edit_message(content=f"{self.user.mention}, starting quiz with select menus! Each question has 1-3 valid answers. Select all correct answers and no incorrect ones for credit. Good luck!", view=None)
-        await self.start_quiz_with_interface("select")
+        message = await interaction.response.edit_message(content=f"{self.user.mention}, starting quiz with select menus! Each question has 1-3 valid answers. Select all correct answers and no incorrect ones for credit. Good luck!", view=None)
+        await self.start_quiz_with_interface("select", message)
 
-    async def start_quiz_with_interface(self, interface_type):
+    async def start_quiz_with_interface(self, interface_type, start_message):
         print(f"Quiz started for {self.user.name} with {interface_type}!")
 
         # Log the quiz start
@@ -390,6 +405,7 @@ class InterfaceChoiceView(View):
         quiz_session = QuizSession(self.user, self.channel, quiz_data)
         quiz_session.bot = self.bot
         quiz_session.interface_type = interface_type
+        quiz_session.start_message = start_message
 
         # Start first question
         await self.show_first_question(quiz_session)
