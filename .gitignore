@@ -6,3 +6,4 @@ banbotgame.py
 .github/
 location.txt
 sample.py
+*.pyc
