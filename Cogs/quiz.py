@@ -21,6 +21,7 @@ with open(quiz_file, "r") as file:
     reader = csv.reader(file)
     quiz_questions = list(reader)
 
+
 class QuizSession:
     def __init__(self, user, channel, quiz_data):
         self.user = user
@@ -35,6 +36,7 @@ class QuizSession:
         self.bot = None  # Store bot reference for cleanup
         self.interface_type = None  # 'buttons' or 'select'
         self.start_message = None
+
 
 class QuizView(View):
     def __init__(self, quiz_session, question_index):
@@ -51,18 +53,20 @@ class QuizView(View):
             # Add select menu for options
             select_options = []
             for i, option in enumerate(options):
-                select_options.append(SelectOption(
-                    label=option,
-                    value=chr(65+i),  # A, B, C, D
-                    description=f"Option {chr(65+i)}"
-                ))
+                select_options.append(
+                    SelectOption(
+                        label=option,
+                        value=chr(65 + i),  # A, B, C, D
+                        description=f"Option {chr(65+i)}",
+                    )
+                )
 
             select_menu = Select(
                 placeholder="Select your answer(s)...",
                 options=select_options,
                 min_values=0,
                 max_values=len(select_options),
-                custom_id="quiz_select"
+                custom_id="quiz_select",
             )
             select_menu.callback = self.select_callback
             self.add_item(select_menu)
@@ -72,22 +76,26 @@ class QuizView(View):
                 button = Button(
                     label=option[0],  # A, B, C, D
                     style=ButtonStyle.secondary,
-                    custom_id=f"option_{chr(65+i)}"
+                    custom_id=f"option_{chr(65+i)}",
                 )
                 button.callback = self.option_callback
                 self.add_item(button)
 
         # Add submit button
-        submit_btn = Button(label="Submit", style=ButtonStyle.primary, custom_id="submit")
+        submit_btn = Button(
+            label="Submit", style=ButtonStyle.primary, custom_id="submit"
+        )
         submit_btn.callback = self.submit_callback
         self.add_item(submit_btn)
 
     async def option_callback(self, interaction):
         if interaction.user != self.quiz_session.user:
-            await interaction.response.send_message("This quiz is not for you!", ephemeral=True)
+            await interaction.response.send_message(
+                "This quiz is not for you!", ephemeral=True
+            )
             return
 
-        option_letter = interaction.data['custom_id'].split('_')[1]
+        option_letter = interaction.data["custom_id"].split("_")[1]
 
         if option_letter in self.user_selections:
             self.user_selections.remove(option_letter)
@@ -97,16 +105,22 @@ class QuizView(View):
         # Update button styles
         for item in self.children[:-1]:  # Exclude submit button
             if item.custom_id.endswith(option_letter):
-                item.style = ButtonStyle.success if option_letter in self.user_selections else ButtonStyle.secondary
+                item.style = (
+                    ButtonStyle.success
+                    if option_letter in self.user_selections
+                    else ButtonStyle.secondary
+                )
 
         await interaction.response.edit_message(view=self)
 
     async def select_callback(self, interaction):
         if interaction.user != self.quiz_session.user:
-            await interaction.response.send_message("This quiz is not for you!", ephemeral=True)
+            await interaction.response.send_message(
+                "This quiz is not for you!", ephemeral=True
+            )
             return
 
-        self.user_selections = interaction.data['values']
+        self.user_selections = interaction.data["values"]
 
         # Update placeholder to show selections
         select_menu = self.children[0]  # First child is the select menu
@@ -119,7 +133,9 @@ class QuizView(View):
 
     async def submit_callback(self, interaction):
         if interaction.user != self.quiz_session.user:
-            await interaction.response.send_message("This quiz is not for you!", ephemeral=True)
+            await interaction.response.send_message(
+                "This quiz is not for you!", ephemeral=True
+            )
             return
         await interaction.channel.typing()
         # Calculate time taken
@@ -130,7 +146,9 @@ class QuizView(View):
         self.quiz_session.user_answers.append(self.user_selections.copy())
 
         # Check if correct and calculate partial credit
-        correct_answers = self.quiz_session.quiz_data.get_correct_answers(self.question_index)
+        correct_answers = self.quiz_session.quiz_data.get_correct_answers(
+            self.question_index
+        )
         is_correct = set(self.user_selections) == set(correct_answers)
 
         # Calculate partial credit with penalty for wrong answers
@@ -147,7 +165,9 @@ class QuizView(View):
         # Calculate penalty for incorrect selections
         incorrect_selected = len(user_set - correct_set)
         total_incorrect = len(all_options_set - correct_set)
-        incorrect_penalty = incorrect_selected / total_incorrect if total_incorrect > 0 else 0
+        incorrect_penalty = (
+            incorrect_selected / total_incorrect if total_incorrect > 0 else 0
+        )
 
         # Final score with penalty, floored at 0
         partial_score = max(0, correct_ratio - incorrect_penalty)
@@ -163,13 +183,19 @@ class QuizView(View):
         embed = Embed(
             title=f"Question {self.question_index + 1} Results",
             description=question,
-            color=Color.green() if is_correct else Color.red()
+            color=Color.green() if is_correct else Color.red(),
         )
 
         options_text = "\n".join(options)
         embed.add_field(name="Options", value=options_text, inline=False)
-        embed.add_field(name="Your Answer", value=", ".join(self.user_selections) if self.user_selections else "None", inline=True)
-        embed.add_field(name="Correct Answer", value=", ".join(correct_answers), inline=True)
+        embed.add_field(
+            name="Your Answer",
+            value=", ".join(self.user_selections) if self.user_selections else "None",
+            inline=True,
+        )
+        embed.add_field(
+            name="Correct Answer", value=", ".join(correct_answers), inline=True
+        )
         embed.add_field(name="Time Taken", value=f"{time_taken:.1f}s", inline=True)
         # Calculate partial credit for display
         all_options = self.quiz_session.quiz_data.get_options(self.question_index)
@@ -185,7 +211,9 @@ class QuizView(View):
         # Calculate penalty for incorrect selections
         incorrect_selected = len(user_set - correct_set)
         total_incorrect = len(all_options_set - correct_set)
-        incorrect_penalty = incorrect_selected / total_incorrect if total_incorrect > 0 else 0
+        incorrect_penalty = (
+            incorrect_selected / total_incorrect if total_incorrect > 0 else 0
+        )
 
         # Final score with penalty, floored at 0
         partial_score = max(0, correct_ratio - incorrect_penalty)
@@ -224,7 +252,7 @@ class QuizView(View):
         embed = Embed(
             title=f"Question {question_index + 1}/{self.quiz_session.total_questions}",
             description=question,
-            color=Color.blue()
+            color=Color.blue(),
         )
 
         options_text = "\n".join(options)
@@ -238,12 +266,16 @@ class QuizView(View):
         embed = Embed(
             title="Quiz Complete!",
             description=f"Final Score: {self.quiz_session.score:.2f}/{self.quiz_session.total_questions}",
-            color=Color.gold()
+            color=Color.gold(),
         )
 
         percentage = (self.quiz_session.score / self.quiz_session.total_questions) * 100
         total_time = sum(self.quiz_session.question_times)
-        avg_time = total_time / len(self.quiz_session.question_times) if self.quiz_session.question_times else 0
+        avg_time = (
+            total_time / len(self.quiz_session.question_times)
+            if self.quiz_session.question_times
+            else 0
+        )
 
         embed.add_field(name="Percentage", value=f"{percentage:.1f}%", inline=True)
         embed.add_field(name="Total Time", value=f"{total_time:.1f}s", inline=True)
@@ -273,7 +305,9 @@ class QuizView(View):
             if not log_channel:
                 return
 
-            percentage = (self.quiz_session.score / self.quiz_session.total_questions) * 100
+            percentage = (
+                self.quiz_session.score / self.quiz_session.total_questions
+            ) * 100
             total_time = sum(self.quiz_session.question_times)
 
             # Create main results embed
@@ -281,7 +315,7 @@ class QuizView(View):
                 title="Quiz Results",
                 description=f"**User:** {self.quiz_session.user.mention}\n**Score:** {self.quiz_session.score}/{self.quiz_session.total_questions} ({percentage:.1f}%)\n**Total Time:** {total_time:.1f}s",
                 color=Color.green() if percentage >= 80 else Color.red(),
-                timestamp=datetime.datetime.now()
+                timestamp=datetime.datetime.now(),
             )
             await log_channel.send(embed=main_embed)
 
@@ -291,14 +325,24 @@ class QuizView(View):
 
             for i in range(self.quiz_session.total_questions):
                 question = self.quiz_session.quiz_data.get_question(i)
-                user_answer = ", ".join(self.quiz_session.user_answers[i]) if self.quiz_session.user_answers[i] else "None"
-                correct_answer = ", ".join(self.quiz_session.quiz_data.get_correct_answers(i))
-                is_correct = set(self.quiz_session.user_answers[i]) == set(self.quiz_session.quiz_data.get_correct_answers(i))
+                user_answer = (
+                    ", ".join(self.quiz_session.user_answers[i])
+                    if self.quiz_session.user_answers[i]
+                    else "None"
+                )
+                correct_answer = ", ".join(
+                    self.quiz_session.quiz_data.get_correct_answers(i)
+                )
+                is_correct = set(self.quiz_session.user_answers[i]) == set(
+                    self.quiz_session.quiz_data.get_correct_answers(i)
+                )
                 time_taken = self.quiz_session.question_times[i]
 
                 status = "✅" if is_correct else "❌"
                 question_text = f"**Q{i+1}:** {status} ({time_taken:.1f}s)\n"
-                question_text += f"*{question[:100]}{'...' if len(question) > 100 else ''}*\n"
+                question_text += (
+                    f"*{question[:100]}{'...' if len(question) > 100 else ''}*\n"
+                )
                 question_text += f"**Your Answer:** {user_answer}\n"
                 question_text += f"**Correct:** {correct_answer}\n\n"
 
@@ -316,9 +360,13 @@ class QuizView(View):
             # Send question details in separate embeds
             for i, chunk in enumerate(question_chunks):
                 chunk_embed = Embed(
-                    title=f"Question Details ({i+1}/{len(question_chunks)})" if len(question_chunks) > 1 else "Question Details",
+                    title=(
+                        f"Question Details ({i+1}/{len(question_chunks)})"
+                        if len(question_chunks) > 1
+                        else "Question Details"
+                    ),
                     description=chunk,
-                    color=Color.blue()
+                    color=Color.blue(),
                 )
                 await log_channel.send(embed=chunk_embed)
 
@@ -329,17 +377,26 @@ class QuizView(View):
         """Purge bot messages from the channel"""
         try:
             if self.quiz_session.bot:
+
                 def is_bot_message(message):
                     return message.author == self.quiz_session.bot.user
+
                 if self.quiz_session.start_message is not None:
-                    await self.quiz_session.channel.purge(limit=100, check=is_bot_message, after=self.quiz_session.start_message)
+                    await self.quiz_session.channel.purge(
+                        limit=100,
+                        check=is_bot_message,
+                        after=self.quiz_session.start_message,
+                    )
                 else:
-                    await self.quiz_session.channel.purge(limit=len(quiz_questions), check=is_bot_message)
+                    await self.quiz_session.channel.purge(
+                        limit=len(quiz_questions), check=is_bot_message
+                    )
 
         except Exception as e:
             print(f"Error cleaning up messages: {e}")
 
-class quizQuestions():
+
+class quizQuestions:
     def __init__(self):
         self.questions = []
         self.options = []  # Changed from answers to options for clarity
@@ -350,9 +407,9 @@ class quizQuestions():
             if len(row) >= 3:
                 self.questions.append(row[0])
                 # Split options by comma, strip whitespace
-                self.options.append([opt.strip() for opt in row[1].split(',')])
+                self.options.append([opt.strip() for opt in row[1].split(",")])
                 # Split correct answers by comma, strip whitespace
-                self.correct_answers.append([ans.strip() for ans in row[2].split(',')])
+                self.correct_answers.append([ans.strip() for ans in row[2].split(",")])
 
     def get_question(self, index):
         return self.questions[index]
@@ -362,6 +419,7 @@ class quizQuestions():
 
     def get_correct_answers(self, index):
         return self.correct_answers[index]
+
 
 class InterfaceChoiceView(View):
     def __init__(self, user, bot, channel):
@@ -373,19 +431,29 @@ class InterfaceChoiceView(View):
     @discord.ui.button(label="Buttons", style=ButtonStyle.primary, emoji="🔘")
     async def buttons_choice(self, interaction, button):
         if interaction.user != self.user:
-            await interaction.response.send_message("This quiz is not for you!", ephemeral=True)
+            await interaction.response.send_message(
+                "This quiz is not for you!", ephemeral=True
+            )
             return
 
-        message = await interaction.response.edit_message(content=f"{self.user.mention}, starting quiz with buttons! Each question has 1-3 valid answers. Select all correct answers and no incorrect ones for credit. Good luck!", view=None)
+        message = await interaction.response.edit_message(
+            content=f"{self.user.mention}, starting quiz with buttons! Each question has 1-3 valid answers. Select all correct answers and no incorrect ones for credit. Good luck!",
+            view=None,
+        )
         await self.start_quiz_with_interface("buttons", message)
 
     @discord.ui.button(label="Select Menu", style=ButtonStyle.primary, emoji="📋")
     async def select_choice(self, interaction, button):
         if interaction.user != self.user:
-            await interaction.response.send_message("This quiz is not for you!", ephemeral=True)
+            await interaction.response.send_message(
+                "This quiz is not for you!", ephemeral=True
+            )
             return
 
-        message = await interaction.response.edit_message(content=f"{self.user.mention}, starting quiz with select menus! Each question has 1-3 valid answers. Select all correct answers and no incorrect ones for credit. Good luck!", view=None)
+        message = await interaction.response.edit_message(
+            content=f"{self.user.mention}, starting quiz with select menus! Each question has 1-3 valid answers. Select all correct answers and no incorrect ones for credit. Good luck!",
+            view=None,
+        )
         await self.start_quiz_with_interface("select", message)
 
     async def start_quiz_with_interface(self, interface_type, start_message):
@@ -395,7 +463,12 @@ class InterfaceChoiceView(View):
         try:
             log_channel = self.bot.get_channel(LOG_CHANNEL)
             if log_channel:
-                embed = Embed(title="Logged Event:", description=f"Quiz started for {self.user.name} with {interface_type}!", color=Color.green(), timestamp=datetime.datetime.now())
+                embed = Embed(
+                    title="Logged Event:",
+                    description=f"Quiz started for {self.user.name} with {interface_type}!",
+                    color=Color.green(),
+                    timestamp=datetime.datetime.now(),
+                )
                 await log_channel.send(embed=embed)
         except Exception as e:
             print(f"Error logging quiz start: {e}")
@@ -417,7 +490,7 @@ class InterfaceChoiceView(View):
         embed = Embed(
             title=f"Question 1/{quiz_session.total_questions}",
             description=question,
-            color=Color.blue()
+            color=Color.blue(),
         )
 
         options_text = "\n".join(options)
@@ -427,25 +500,33 @@ class InterfaceChoiceView(View):
         view = QuizView(quiz_session, 0)
         await quiz_session.channel.send(embed=embed, view=view)
 
+
 class Quiz(commands.Cog):
     def __init__(self, bot):
-      self.bot = bot
-      self.description = 'Quiz those trial mods!'
+        self.bot = bot
+        self.description = "Quiz those trial mods!"
 
     async def log0101(self, message, title=None):
-      print('logging event')
-      cha = await self.bot.fetch_channel(LOG_CHANNEL)
-      if not title:
-        title="Logged Event:"
-      embed3 = Embed(title=title, description=message, color=Color.green(), timestamp=datetime.datetime.now())
-      await cha.send(embed=embed3)
+        print("logging event")
+        cha = await self.bot.fetch_channel(LOG_CHANNEL)
+        if not title:
+            title = "Logged Event:"
+        embed3 = Embed(
+            title=title,
+            description=message,
+            color=Color.green(),
+            timestamp=datetime.datetime.now(),
+        )
+        await cha.send(embed=embed3)
 
     # events
     @commands.Cog.listener()
     async def on_ready(self):
-      print('Quiz is online')
+        print("Quiz is online")
 
-    @commands.command(name='start_quiz', aliases=['quiz'], help='Have a target do a quiz!')
+    @commands.command(
+        name="start_quiz", aliases=["quiz"], help="Have a target do a quiz!"
+    )
     @commands.has_guild_permissions(administrator=True)
     async def start_quiz(self, ctx, target_mod=None):
         await ctx.message.delete()
@@ -456,7 +537,7 @@ class Quiz(commands.Cog):
             # Handle both mentions and raw IDs
             if isinstance(target_mod, str):
                 # Remove mention formatting if present
-                user_id = target_mod.strip('<@!>')
+                user_id = target_mod.strip("<@!>")
                 user = await self.bot.fetch_user(int(user_id))
             else:
                 user = await self.bot.fetch_user(target_mod)
@@ -473,7 +554,10 @@ class Quiz(commands.Cog):
 
         # Let user choose interface type
         interface_view = InterfaceChoiceView(user, self.bot, ctx.channel)
-        await ctx.send(f"{user.mention}, it's quiz time! Choose your preferred interface:", view=interface_view)
+        await ctx.send(
+            f"{user.mention}, it's quiz time! Choose your preferred interface:",
+            view=interface_view,
+        )
 
     async def show_first_question(self, quiz_session):
         question = quiz_session.quiz_data.get_question(0)
@@ -482,7 +566,7 @@ class Quiz(commands.Cog):
         embed = Embed(
             title=f"Question 1/{quiz_session.total_questions}",
             description=question,
-            color=Color.blue()
+            color=Color.blue(),
         )
 
         options_text = "\n".join(options)
@@ -493,12 +577,13 @@ class Quiz(commands.Cog):
         await quiz_session.channel.send(embed=embed, view=view)
 
 
-
-
 async def setup(bot):
-  await bot.add_cog(Quiz(bot))
+    await bot.add_cog(Quiz(bot))
+
 
 if __name__ == "__main__":
     print("Quiz is running")
     quiz = quizQuestions()
-    print(f"Q1: {quiz.get_question(0)}\n{quiz.get_options(0)}\n{quiz.get_correct_answers(0)}")
+    print(
+        f"Q1: {quiz.get_question(0)}\n{quiz.get_options(0)}\n{quiz.get_correct_answers(0)}"
+    )

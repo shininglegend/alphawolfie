@@ -7,3 +7,5 @@ banbotgame.py
 location.txt
 sample.py
 *.pyc
+
+__pycache__*
