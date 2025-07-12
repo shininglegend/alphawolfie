@@ -2,7 +2,7 @@ import discord, os, sys
 
 from dotenv import load_dotenv
 from helpers.client import MyClient
-from helpers.helpcmd import MyHelp
+from helpers.helpcmd import ModernHelp
 from init import location
 
 if location == 0:
@@ -14,7 +14,7 @@ else:
 client = MyClient(
     command_prefix=myprefix, intents=discord.Intents.all(), case_insensitive=True
 )  # switch prefix!
-client.help_command = MyHelp(client=client)  # set our help command to our custom one
+client.help_command = ModernHelp(client)  # set our help command to our custom one
 
 if location == 0:
     load_dotenv()

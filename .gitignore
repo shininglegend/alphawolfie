@@ -2,7 +2,6 @@ key.txt
 banbotgame.py
 .env
 .venv/
-.vscode/
 .github/
 location.txt
 sample.py

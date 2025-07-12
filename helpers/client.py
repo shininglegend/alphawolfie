@@ -28,7 +28,7 @@ class MyClient(commands.Bot):
             title=title,
             description=message,
             color=Color.green(),
-            timestamp=datetime.datetime.now(),
+            timestamp=datetime.datetime.now(datetime.timezone.utc),
         )
         await cha.send(embed=embed3)
 
@@ -46,7 +46,7 @@ class MyClient(commands.Bot):
             title="Error:",
             description=message,
             color=Color.red(),
-            timestamp=datetime.datetime.now(),
+            timestamp=datetime.datetime.now(datetime.timezone.utc),
         )
         if ctx:
             embed3.add_field(name="Command:", value=ctx.message.content)

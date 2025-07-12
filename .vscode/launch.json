@@ -5,18 +5,11 @@
         {
             "envFile": "${workspaceFolder}/.env",
 
-            "name": "Python: Current File",
-            "type": "python",
+            "name": "Python: Run Main",
+            "type": "debugpy",
             "request": "launch",
-            "program": "${file}",
+            "program": "main.py",
             "console": "integratedTerminal",
-            "justMyCode": true
-        },
-        {
-            "name": "Python: File",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
             "justMyCode": true
         }
     ]
