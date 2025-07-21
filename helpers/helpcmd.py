@@ -157,9 +157,7 @@ class ModernHelp(commands.HelpCommand):
                 "help": "Shows help information for commands and categories",
                 "aliases": ["commands", "helps", "helpme", "h"],
                 "case_insensitive": True,
-                "cooldown": commands.CooldownMapping.from_cooldown(
-                    1, 5, commands.BucketType.user
-                ),
+                "cooldown": commands.CooldownMapping.from_cooldown(3, 5, commands.BucketType.user),
             }
         )
         self.client = client
@@ -356,7 +354,23 @@ class ModernHelp(commands.HelpCommand):
         await self.send_command_help(group)
 
     async def command_not_found(self, string):
-        """Handle command not found with suggestions"""
+        """Handle command not found with case-insensitive lookup"""
+        string_lower = string.lower()
+
+        # Try case-insensitive cog lookup first
+        for cog_name, cog in self.context.bot.cogs.items():
+            if cog_name.lower() == string_lower:
+                return await self.send_cog_help(cog)
+
+        # Try case-insensitive command lookup
+        for cmd in self.context.bot.walk_commands():
+            if cmd.name.lower() == string_lower or string_lower in [alias.lower() for alias in cmd.aliases]:
+                if isinstance(cmd, commands.Group):
+                    return await self.send_group_help(cmd)
+                else:
+                    return await self.send_command_help(cmd)
+
+        # Not found - show suggestions
         embed = HelpEmbed(title="❓ Command Not Found")
         embed.description = f"No command or category named `{string}` was found."
 
@@ -370,7 +384,6 @@ class ModernHelp(commands.HelpCommand):
 
         # Simple similarity check
         suggestions = []
-        string_lower = string.lower()
         for cmd in all_commands:
             if string_lower in cmd.lower() or cmd.lower() in string_lower:
                 suggestions.append(cmd)
@@ -391,7 +404,19 @@ class ModernHelp(commands.HelpCommand):
         await self.send(embed=embed)
 
     async def subcommand_not_found(self, command, string):
-        """Handle subcommand not found"""
+        """Handle subcommand not found with case-insensitive lookup"""
+        string_lower = string.lower()
+
+        # Try case-insensitive subcommand lookup
+        if isinstance(command, commands.Group):
+            for subcommand in command.commands:
+                if subcommand.name.lower() == string_lower or string_lower in [alias.lower() for alias in subcommand.aliases]:
+                    if isinstance(subcommand, commands.Group):
+                        return await self.send_group_help(subcommand)
+                    else:
+                        return await self.send_command_help(subcommand)
+
+        # Not found - show available subcommands
         embed = HelpEmbed(title="❓ Subcommand Not Found")
         embed.description = (
             f"Command `{command.qualified_name}` has no subcommand named `{string}`."
@@ -410,6 +435,9 @@ class ModernHelp(commands.HelpCommand):
 
     async def send_error_message(self, error):
         """Send error message with helpful information"""
+        if not error:
+            print("Error called, but no error sent. Likely handled.")
+            return
         embed = HelpEmbed(title="❌ Error")
         embed.description = str(error)
         embed.color = Color.red()

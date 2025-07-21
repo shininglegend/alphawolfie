@@ -5,6 +5,16 @@ from discord import Embed, Color
 
 from helpers.verify import PersistentView
 
+# curr.execute(
+#     """
+#     CREATE TABLE IF NOT EXISTS reactions (
+#     id SERIAL PRIMARY KEY,
+#     trigger TEXT NOT NULL,
+#     eid TEXT NOT NULL)
+#     """
+# )
+# conn.commit()
+
 
 class MyClient(commands.Bot):
     def __init__(self, *args, **kwargs):
@@ -142,24 +152,27 @@ class MyClient(commands.Bot):
             return
 
         # Fetch emoji reactions from the database
-        # emojireacts = self.fetch_emoji_reactions()
+        emojireacts = self.fetch_emoji_reactions()
 
         # Extract IDs of all mentioned users in the message for easy lookup
-        # mentions = [str(mention.id) for mention in message.mentions]
+        mentions = [str(mention.id) for mention in message.mentions]
 
         # Iterate over each trigger in the emoji reactions
-        # for trigger, emote in emojireacts.items():
-        #     # Check if the trigger is in the mentions or in the message content (case-insensitive)
-        #     if trigger in mentions or trigger in message.content.lower():
-        #         # Check if the message is not in a specific channel and location is set to 1 before reacting
-        #         if message.channel.id not in [876586125987295283, 876586168953737246] and location == 1:
-        #             try:
-        #                 # Attempt to add the reaction to the message
-        #                 await message.add_reaction(emote)
-        #             except discord.errors.HTTPException:
-        #                 # If there's an HTTPException (e.g., emoji not found), use a fallback emoji
-        #                 fallback_emoji = self.get_emoji(1208944867305066516)
-        #                 await message.add_reaction(fallback_emoji)
+        for trigger, emote in emojireacts.items():
+            # Check if the trigger is in the mentions or in the message content (case-insensitive)
+            if trigger in mentions or trigger in message.content.lower():
+                # Check if the message is not in a specific channel and location is set to 1 before reacting
+                if (
+                    message.channel.id not in [876586125987295283, 876586168953737246]
+                    and location == 1
+                ):
+                    try:
+                        # Attempt to add the reaction to the message
+                        await message.add_reaction(emote)
+                    except discord.errors.HTTPException:
+                        # If there's an HTTPException (e.g., emoji not found), use a fallback emoji
+                        fallback_emoji = self.get_emoji(1208944867305066516)
+                        await message.add_reaction(fallback_emoji)
 
         # Special handling for messages that start with ';', for example, logging or special commands
         if message.content.startswith(";"):
